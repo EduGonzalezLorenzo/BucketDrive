@@ -1,0 +1,18 @@
+version: "3"
+services:
+  mysql:
+    image: mysql
+    volumes:
+      - ./mysqlData:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - 3306:3306
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_HOST=mysql
+      - UPLOAD_LIMIR=300M
+    ports:
+      - 8081:80

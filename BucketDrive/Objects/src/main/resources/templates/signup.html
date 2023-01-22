@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body>
+    <nav th:replace="navbar.html :: nav"></nav>
+    <h1>Register new user</h1>
+
+    <article th:if="${message == null}">
+        <form action="/signup" method="post">
+            <label for="name"> User name (between 3 and 10 characters):</label>
+            <input type="text" name="name">
+            <label for="realname"> Real name (between 3 and 30 characters):</label>
+            <input type="text" name="realname">
+            <label for="password">Insert password (between 3 and 10 characters)</label>
+            <input type="text" name="password">
+            <label for="passwordRepeat">Repeat password</label>
+            <input type="text" name="passwordRepeat">
+            <input type="submit" value="Sign up!">
+        </form>
+    </article>
+
+    <article th:if="${message != null}">
+        <p th:text="${message}"></p>
+    </article>
+</body>
+
+</html>
