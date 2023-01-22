@@ -13,11 +13,8 @@ public class ObjectsApplication {
 		SpringApplication.run(ObjectsApplication.class, args);
 	}
 	public void addInterceptors(InterceptorRegistry registry){
-		registry.addInterceptor(new MyAuthInterceptor())
-				.addPathPatterns("/objects/**")
-				.addPathPatterns("/settings/");
-
 		registry.addInterceptor(new MyLogInterceptor())
-				.addPathPatterns("/**");
+				.addPathPatterns("/objects")
+				.addPathPatterns("/settings");
 	}
 }

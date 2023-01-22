@@ -20,6 +20,6 @@ public class UserDaoMySql  implements UserDao{
 
     @Override
     public int addUser(User user) {
-        return jdbcTemplate.update("INSERT INTO user (name, password) values (?,?)", user.getName(), user.getPassword());
+        return jdbcTemplate.update("INSERT INTO user (username, name, password) values (?, ?, ?)", user.getUsername(), user.getName(), user.getPassword());
     }
 }

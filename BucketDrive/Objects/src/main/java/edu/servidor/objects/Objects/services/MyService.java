@@ -15,19 +15,27 @@ public class MyService {
     @Autowired
     UserDao userDao;
 
-    public String addUser(String name, String password) {
+    public String addUser(String username, String name, String password) {
         List<User> userList = userDao.getAllUsers();
         for (User user : userList) {
-            if (user.getName().equals(name)) {
+            if (user.getUsername().equals(username)) {
                 return "User name already exists";
             }
         }
         User user = new User();
+        user.setUsername(username);
         user.setName(name);
-        String hashPass = Hashing.sha256()
-                .hashString(password, StandardCharsets.UTF_8)
-                .toString();
-        user.setPassword(hashPass);
-        return userDao.addUser(user) == 0 ? "Database error" : "Success user created!";
+        user.setPassword(String.valueOf(password.hashCode()));
+        return userDao.addUser(user) == 0 ? "Database error" : "Sign up successfully!";
+    }
+
+    public boolean login(String username, String password) {
+        List<User> userList = userDao.getAllUsers();
+        for (User user : userList) {
+            if (user.getUsername().equals(username)) {
+               if(user.getPassword().equals(String.valueOf(password.hashCode()))) return true;
+            }
+        }
+        return false;
     }
 }

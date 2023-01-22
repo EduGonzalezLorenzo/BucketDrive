@@ -1,3 +1,11 @@
-body{
-background-color: red;
+nav {
+    background-color: rgb(145, 145, 145);
+}
+
+a {
+    color: white !important;
+}
+
+li:hover{
+    background-color: rgb(110, 108, 108);
 }

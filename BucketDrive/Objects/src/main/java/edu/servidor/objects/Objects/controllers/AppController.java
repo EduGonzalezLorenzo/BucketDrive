@@ -27,12 +27,31 @@ public class AppController {
     }
 
     @GetMapping("/login")
-    public String login() {
-        return "login";
+    public String login(HttpSession session) {
+        Object login = session.getAttribute("currentUser");
+        if (login == null) return "login";
+        else return "objects";
     }
 
     @PostMapping("/login")
-    public String login(@Valid UserForm name, @Valid UserForm password) {
+    public String login(HttpSession session, @Valid UserForm userForm, BindingResult bindingResult, Model model) {
+        String errorMessage = "";
+        if (bindingResult.hasErrors()) {
+            List<ObjectError> errors = bindingResult.getAllErrors();
+            for (ObjectError error : errors) {
+                if (error instanceof FieldError) {
+                    FieldError fieldError = (FieldError) error;
+                    errorMessage += "-" + fieldError.getField() + ":" + fieldError.getDefaultMessage();
+                    model.addAttribute("message", errorMessage);
+                    return "login";
+                }
+            }
+        }
+        if (service.login(userForm.getUsername(), userForm.getPassword())){
+            session.setAttribute("currentUser", userForm.getUsername());
+            return "objects";
+        }
+        model.addAttribute("message", "Wrong user or password");
         return "login";
     }
 
@@ -43,22 +62,26 @@ public class AppController {
 
     @PostMapping("/signup")
     public String signUp(@Valid UserForm userForm, BindingResult bindingResult, Model model) {
+        String message = "";
         if (bindingResult.hasErrors()) {
             List<ObjectError> errors = bindingResult.getAllErrors();
-            String errorMessage = "";
             for (ObjectError error : errors) {
                 if (error instanceof FieldError) {
                     FieldError fieldError = (FieldError) error;
-                    errorMessage += "-" + fieldError.getField() + ":" + fieldError.getDefaultMessage() + "\n";
+                    message += "-" + fieldError.getField() + ":" + fieldError.getDefaultMessage();
                 }
             }
-            model.addAttribute("message", errorMessage);
-            return "signup";
-        }
-        String message = service.addUser(userForm.getName(), userForm.getPassword());
+        } else message = service.addUser(userForm.getUsername(), userForm.getName(), userForm.getPassword());
+
         model.addAttribute("message", message);
 
         return "signup";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.setAttribute("currentUser", null);
+        return "index";
     }
 
     @GetMapping("/settings")

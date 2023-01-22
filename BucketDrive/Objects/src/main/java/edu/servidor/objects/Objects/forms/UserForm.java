@@ -5,20 +5,20 @@ import org.hibernate.validator.constraints.Range;
 
 public class UserForm {
     @Length(min = 3, max = 10)
-    String name;
+    String username;
 
     @Length(min = 3, max = 10)
     String password;
 
     @Length(min = 3, max = 30)
-    String realName;
+    String name;
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -29,11 +29,11 @@ public class UserForm {
         this.password = password;
     }
 
-    public String getRealName() {
-        return realName;
+    public String getName() {
+        return name;
     }
 
-    public void setRealName(String realName) {
-        this.realName = realName;
+    public void setName(String name) {
+        this.name = name;
     }
 }

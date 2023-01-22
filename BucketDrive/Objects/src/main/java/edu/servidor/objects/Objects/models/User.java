@@ -3,10 +3,9 @@ package edu.servidor.objects.Objects.models;
 public class User {
 
     int id;
+    String username;
     String name;
     String password;
-
-    String realName;
 
     public int getId() {
         return id;
@@ -14,6 +13,14 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getName() {
@@ -30,13 +37,5 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getRealName() {
-        return realName;
-    }
-
-    public void setRealName(String realName) {
-        this.realName = realName;
     }
 }
