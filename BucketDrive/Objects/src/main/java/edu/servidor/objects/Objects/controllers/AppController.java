@@ -1,6 +1,7 @@
 package edu.servidor.objects.Objects.controllers;
 
 import edu.servidor.objects.Objects.forms.UserForm;
+import edu.servidor.objects.Objects.models.User;
 import edu.servidor.objects.Objects.services.MyService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -47,8 +48,9 @@ public class AppController {
                 }
             }
         }
-        if (service.login(userForm.getUsername(), userForm.getPassword())){
-            session.setAttribute("currentUser", userForm.getUsername());
+        User user = service.login(userForm.getUsername(), userForm.getPassword());
+        if (user != null){
+            session.setAttribute("currentUser", user);
             return "objects";
         }
         model.addAttribute("message", "Wrong user or password");
@@ -85,12 +87,30 @@ public class AppController {
     }
 
     @GetMapping("/settings")
-    public String settings(Model model) {
+    public String settings(Model model, HttpSession session) {
+        model.addAttribute("currentUser", session.getAttribute("currentUser"));
         return "settings";
     }
 
     @PostMapping("/settings")
-    public String settings() {
+    public String settings(@Valid UserForm userForm, BindingResult bindingResult, Model model, HttpSession session) {
+        String message = "";
+        User user = (User) session.getAttribute("currentUser");
+        if (bindingResult.hasErrors()) {
+            List<ObjectError> errors = bindingResult.getAllErrors();
+            for (ObjectError error : errors) {
+                if (error instanceof FieldError) {
+                    FieldError fieldError = (FieldError) error;
+                    message += "-" + fieldError.getField() + ":" + fieldError.getDefaultMessage();
+                }
+            }
+        } else{
+            message = service.modifyUser(userForm.getUsername(), userForm.getName(), userForm.getPassword(), user.getId());
+            session.setAttribute("currentUser", service.getUserById(user.getId()));
+        }
+        model.addAttribute("currentUser", session.getAttribute("currentUser"));
+        model.addAttribute("message", message);
+
         return "settings";
     }
 

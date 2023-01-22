@@ -15,6 +15,47 @@
 <body>
     <nav th:replace="navbarLoged.html :: nav"></nav>
     <h1 class="text-center">Settings</h1>
+
+    <article class="container" th:if="${message != null}">
+        <p th:text="${message}"></p>
+    </article>
+
+    <article class="container">
+        <form action="/settings" method="post">
+            <div class="row mb-3">
+                <p>Current username: <span th:text="${currentUser.username}"></span></p>
+                <label for="username" class="col-sm-6 col-form-label"> New username (between 3 and 10
+                    characters): </label>
+                <input type="text" class="form-control" name="username" id="username">
+            </div>
+            <input class="btn btn-primary" type="submit" value="Change username">
+        </form>
+
+        <form action="/settings" method="post">
+            <div class="row mb-3">
+                <p>Current name: <span th:text="${currentUser.name}"></span></p>
+                <label for="name" class="col-sm-2 col-form-label">New name (between 3 and 30
+                    characters): </label>
+                <input type="text" name="name" class="form-control" id="name">
+            </div>
+            <input class="btn btn-primary" type="submit" value="Change name">
+        </form>
+
+        <form action="/settings" method="post">
+            <div class="row mb-3">
+                <label for="password" class="col-sm-2 col-form-label">New password (between 3 and 10
+                    characters):</label>
+                <input type="text" name="password" class="form-control" id="password">
+            </div>
+
+            <div class="row mb-3">
+                <label for="passwordRepeat" class="col-sm-2 col-form-label">Repeat new password:</label>
+                <input type="text" name="passwordRepeat" class="form-control" id="passwordRepeat">
+            </div>
+
+            <input class="btn btn-primary" type="submit" value="Change password">
+        </form>
+    </article>
 </body>
 
 </html>

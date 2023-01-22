@@ -22,4 +22,24 @@ public class UserDaoMySql  implements UserDao{
     public int addUser(User user) {
         return jdbcTemplate.update("INSERT INTO user (username, name, password) values (?, ?, ?)", user.getUsername(), user.getName(), user.getPassword());
     }
+
+    @Override
+    public int modifyUsername(String username, int id) {
+        return jdbcTemplate.update("UPDATE user SET username=? WHERE id = ?", username, id);
+    }
+
+    @Override
+    public int modifyName(String name, int id) {
+        return jdbcTemplate.update("UPDATE user SET name=? WHERE id = ?", name, id);
+    }
+
+    @Override
+    public int modifyPassword(int password, int id) {
+        return jdbcTemplate.update("UPDATE user SET password=? WHERE id = ?", password, id);
+    }
+
+    @Override
+    public List<User> getUserById(int id) {
+        return jdbcTemplate.query("SELECT * from user WHERE id = ?", new BeanPropertyRowMapper<>(User.class), id);
+    }
 }

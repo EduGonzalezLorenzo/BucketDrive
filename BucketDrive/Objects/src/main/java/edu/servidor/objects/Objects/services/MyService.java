@@ -29,13 +29,33 @@ public class MyService {
         return userDao.addUser(user) == 0 ? "Database error" : "Sign up successfully!";
     }
 
-    public boolean login(String username, String password) {
+    public User login(String username, String password) {
         List<User> userList = userDao.getAllUsers();
         for (User user : userList) {
             if (user.getUsername().equals(username)) {
-               if(user.getPassword().equals(String.valueOf(password.hashCode()))) return true;
+               if(user.getPassword().equals(String.valueOf(password.hashCode()))) return user;
             }
         }
-        return false;
+        return null;
+    }
+
+    public String modifyUser(String username, String name, String password, int userId) {
+        if (username!=null){
+            List<User> userList = userDao.getAllUsers();
+            for (User user : userList) {
+                if (user.getUsername().equals(username)) {
+                    return "Username already exists";
+                }
+            }
+            return userDao.modifyUsername(username, userId) == 0 ? "Unable to change username" : "Username changed";
+        }else if (name != null){
+            return userDao.modifyName(name, userId) == 0 ? "Unable to change name" : "Name changed";
+        } else {
+            return userDao.modifyPassword(password.hashCode(), userId) == 0 ? "Unable to change password" : "password changed";
+        }
+    }
+
+    public User getUserById(int id) {
+        return userDao.getUserById(id).get(0);
     }
 }
