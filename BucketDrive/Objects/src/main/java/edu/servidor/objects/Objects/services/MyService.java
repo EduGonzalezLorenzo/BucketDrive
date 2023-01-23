@@ -1,13 +1,10 @@
 package edu.servidor.objects.Objects.services;
 
-
-import com.google.common.hash.Hashing;
 import edu.servidor.objects.Objects.models.User;
 import edu.servidor.objects.Objects.repos.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
@@ -33,14 +30,14 @@ public class MyService {
         List<User> userList = userDao.getAllUsers();
         for (User user : userList) {
             if (user.getUsername().equals(username)) {
-               if(user.getPassword().equals(String.valueOf(password.hashCode()))) return user;
+                if (user.getPassword().equals(String.valueOf(password.hashCode()))) return user;
             }
         }
         return null;
     }
 
     public String modifyUser(String username, String name, String password, int userId) {
-        if (username!=null){
+        if (username != null) {
             List<User> userList = userDao.getAllUsers();
             for (User user : userList) {
                 if (user.getUsername().equals(username)) {
@@ -48,7 +45,7 @@ public class MyService {
                 }
             }
             return userDao.modifyUsername(username, userId) == 0 ? "Unable to change username" : "Username changed";
-        }else if (name != null){
+        } else if (name != null) {
             return userDao.modifyName(name, userId) == 0 ? "Unable to change name" : "Name changed";
         } else {
             return userDao.modifyPassword(password.hashCode(), userId) == 0 ? "Unable to change password" : "password changed";

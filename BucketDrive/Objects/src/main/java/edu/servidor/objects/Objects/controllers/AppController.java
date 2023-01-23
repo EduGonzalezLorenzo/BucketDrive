@@ -115,7 +115,7 @@ public class AppController {
     }
 
     @GetMapping("/objects")
-    public String objects(HttpSession session) {
+    public String objects() {
         return "objects";
     }
 }
