@@ -16,4 +16,8 @@ public interface UserDao {
     int modifyPassword(int password, int id);
 
     List<User> getUserById(int id);
+
+    User getUserByUserName(String username);
+
+    boolean checkUserName(String username);
 }

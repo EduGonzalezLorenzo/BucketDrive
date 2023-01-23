@@ -13,8 +13,30 @@
 </head>
 
 <body>
-    <nav th:replace="navbarLoged.html :: nav"></nav>
-    <h1 class="text-center">My buckets</h1>
+<nav th:replace="navbarLoged.html :: nav"></nav>
+<h1 class="text-center">My buckets</h1>
+<form action="/objects" method="post">
+    <h2>Create new bucket</h2>
+    <article class="container" th:if="${message != null}">
+        <p th:text="${message}"></p>
+    </article>
+    <label for="uri"> Bucket name. No special chars allowed ("-" and "_" accepted). Max 20 chars:</label>
+    <input type="text" name="uri" id="uri">
+    <input type="submit" value="Create">
+</form>
+<table>
+
+    <tr th:each="bucket: ${buckets}">
+        <td>
+            <a th:href="@{/objects/{name}/(name=${bucket.uri})}"><p th:text="${bucket.uri}"></p></a>
+        </td>
+        <td>
+            <form action="#" th:action="@{/deletebucket/{id}(id=${bucket.id})}" method="post">
+                <input type="submit" value="Delete this bucket">
+            </form>
+        </td>
+    </tr>
+</table>
 </body>
 
 </html>

@@ -2,10 +2,10 @@ nav {
     background-color: rgb(145, 145, 145);
 }
 
-a {
+.nav-element{
     color: white !important;
 }
 
-li:hover{
+.nav-hover:hover{
     background-color: rgb(110, 108, 108);
 }

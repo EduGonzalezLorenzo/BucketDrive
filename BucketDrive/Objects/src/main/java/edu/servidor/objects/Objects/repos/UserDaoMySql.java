@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class UserDaoMySql  implements UserDao{
+public class UserDaoMySql implements UserDao {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
@@ -41,5 +41,16 @@ public class UserDaoMySql  implements UserDao{
     @Override
     public List<User> getUserById(int id) {
         return jdbcTemplate.query("SELECT * from user WHERE id = ?", new BeanPropertyRowMapper<>(User.class), id);
+    }
+
+    @Override
+    public User getUserByUserName(String username) {
+        return jdbcTemplate.query("SELECT * from user where username = ? ", new BeanPropertyRowMapper<>(User.class), username).get(0);
+    }
+
+    @Override
+    public boolean checkUserName(String username) {
+        return jdbcTemplate.query("SELECT * from user where username = ? ", new BeanPropertyRowMapper<>(User.class), username).size() == 0;
+
     }
 }

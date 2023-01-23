@@ -1,20 +1,28 @@
 package edu.servidor.objects.Objects;
 
-import edu.servidor.objects.Objects.interceptors.MyAuthInterceptor;
-import edu.servidor.objects.Objects.interceptors.MyLogInterceptor;
+import edu.servidor.objects.Objects.interceptors.NeedToBeLoggedInterceptor;
+import edu.servidor.objects.Objects.interceptors.NeededToBeUnloggedInterceptor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
-public class ObjectsApplication {
+public class ObjectsApplication implements WebMvcConfigurer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ObjectsApplication.class, args);
 	}
+
+	@Override
 	public void addInterceptors(InterceptorRegistry registry){
-		registry.addInterceptor(new MyLogInterceptor())
+		registry.addInterceptor(new NeedToBeLoggedInterceptor())
 				.addPathPatterns("/objects")
 				.addPathPatterns("/settings");
+
+		registry.addInterceptor(new NeededToBeUnloggedInterceptor())
+				.addPathPatterns("/index")
+				.addPathPatterns("/login")
+				.addPathPatterns("/signup");
 	}
 }

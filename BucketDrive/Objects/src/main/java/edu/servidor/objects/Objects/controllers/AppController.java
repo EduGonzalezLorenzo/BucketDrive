@@ -1,17 +1,20 @@
 package edu.servidor.objects.Objects.controllers;
 
+import edu.servidor.objects.Objects.forms.BucketForm;
 import edu.servidor.objects.Objects.forms.UserForm;
 import edu.servidor.objects.Objects.models.User;
 import edu.servidor.objects.Objects.services.MyService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.Banner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
@@ -49,9 +52,9 @@ public class AppController {
             }
         }
         User user = service.login(userForm.getUsername(), userForm.getPassword());
-        if (user != null){
+        if (user != null) {
             session.setAttribute("currentUser", user);
-            return "objects";
+            return "redirect:/objects";
         }
         model.addAttribute("message", "Wrong user or password");
         return "login";
@@ -104,8 +107,8 @@ public class AppController {
                     message += "-" + fieldError.getField() + ":" + fieldError.getDefaultMessage();
                 }
             }
-        } else{
-            message = service.modifyUser(userForm.getUsername(), userForm.getName(), userForm.getPassword(), user.getId());
+        } else {
+            message = service.modifyUser(userForm.getName(), userForm.getPassword(), user.getId());
             session.setAttribute("currentUser", service.getUserById(user.getId()));
         }
         model.addAttribute("currentUser", session.getAttribute("currentUser"));
@@ -115,7 +118,36 @@ public class AppController {
     }
 
     @GetMapping("/objects")
-    public String objects() {
+    public String objects(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("currentUser");
+        model.addAttribute("buckets", service.getBuckets(user));
+        return "objects";
+    }
+
+    @PostMapping("/objects")
+    public String objects(@Valid BucketForm bucketForm, BindingResult bindingResult, Model model, HttpSession session) {
+        String message = "";
+        User user = (User) session.getAttribute("currentUser");
+        if (bindingResult.hasErrors()) {
+            List<ObjectError> errors = bindingResult.getAllErrors();
+            for (ObjectError error : errors) {
+                if (error instanceof FieldError) {
+                    FieldError fieldError = (FieldError) error;
+                    message += "-" + fieldError.getField() + ":" + fieldError.getDefaultMessage();
+                }
+            }
+        } else {
+            message = service.createBucket(user, bucketForm.getUri());
+        }
+        model.addAttribute("message", message);
+        model.addAttribute("buckets", service.getBuckets(user));
+        return "objects";
+    }
+
+    @PostMapping("/deletebucket/{id}")
+    public String deleteBucket(@PathVariable int id, Model model, HttpSession session){
+        model.addAttribute("message", service.deleteBucket(id));
+        model.addAttribute("buckets", service.getBuckets((User) session.getAttribute("currentUser")));
         return "objects";
     }
 }

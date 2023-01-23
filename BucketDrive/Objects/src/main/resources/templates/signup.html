@@ -13,47 +13,46 @@
 </head>
 
 <body>
-    <nav th:replace="navbarNotLoged.html :: nav"></nav>
-    <h1 class="text-center">Register new user</h1>
+<nav th:replace="navbarNotLoged.html :: nav"></nav>
+<h1 class="text-center">Register new user</h1>
 
-    <article th:if="${message != null}">
+<article class="container">
+    <section th:if="${message != null}">
         <p th:text="${message}"></p>
-    </article>
-
-    <article th:if="${message == null}" class="container">
-        <form action="/signup" method="post">
-            <div class="row mb-3">
-                <label for="username" class="col-sm-2 col-form-label"> User name (between 3 and 10 characters):</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="username" id="username">
-                </div>
+    </section>
+    <form action="/signup" method="post">
+        <div class="row mb-3">
+            <label for="username" class="col-sm-2 col-form-label"> User name (between 3 and 10 characters):</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="username" id="username">
             </div>
+        </div>
 
-            <div class="row mb-3">
-                <label for="name" class="col-sm-2 col-form-label">Real name (between 3 and 30 characters):</label>
-                <div class="col-sm-10">
-                    <input type="text" name="name" class="form-control" id="name">
-                </div>
+        <div class="row mb-3">
+            <label for="name" class="col-sm-2 col-form-label">Real name (between 3 and 30 characters):</label>
+            <div class="col-sm-10">
+                <input type="text" name="name" class="form-control" id="name">
             </div>
+        </div>
 
-            <div class="row mb-3">
-                <label for="password" class="col-sm-2 col-form-label">Insert password (between 3 and 10
-                    characters):</label>
-                <div class="col-sm-10">
-                    <input type="text" name="password" class="form-control" id="password">
-                </div>
+        <div class="row mb-3">
+            <label for="password" class="col-sm-2 col-form-label">Insert password (between 3 and 10
+                characters):</label>
+            <div class="col-sm-10">
+                <input type="text" name="password" class="form-control" id="password">
             </div>
+        </div>
 
-            <div class="row mb-3">
-                <label for="passwordRepeat" class="col-sm-2 col-form-label">Repeat password:</label>
-                <div class="col-sm-10">
-                    <input type="text" name="passwordRepeat" class="form-control" id="passwordRepeat">
-                </div>
+        <div class="row mb-3">
+            <label for="passwordRepeat" class="col-sm-2 col-form-label">Repeat password:</label>
+            <div class="col-sm-10">
+                <input type="text" name="passwordRepeat" class="form-control" id="passwordRepeat">
             </div>
-            <input class="btn btn-primary" type="submit" value="Sign up!">
+        </div>
+        <input class="btn btn-primary" type="submit" value="Sign up!">
 
-        </form>
-    </article>
+    </form>
+</article>
 </body>
 
 </html>
