@@ -108,8 +108,8 @@ public class AppController {
                 }
             }
         } else {
-            message = service.modifyUser(userForm.getName(), userForm.getPassword(), user.getId());
-            session.setAttribute("currentUser", service.getUserById(user.getId()));
+            message = service.modifyUser(userForm.getName(), userForm.getPassword(), user.getUsername());
+            session.setAttribute("currentUser", service.getUserById(user.getUsername()));
         }
         model.addAttribute("currentUser", session.getAttribute("currentUser"));
         model.addAttribute("message", message);

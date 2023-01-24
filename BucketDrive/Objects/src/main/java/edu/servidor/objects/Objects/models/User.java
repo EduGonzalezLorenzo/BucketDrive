@@ -1,19 +1,10 @@
 package edu.servidor.objects.Objects.models;
 
 public class User {
+    private String username;
+    private String name;
+    private String password;
 
-    int id;
-    String username;
-    String name;
-    String password;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getUsername() {
         return username;

@@ -1,9 +1,9 @@
 package edu.servidor.objects.Objects.models;
 
 public class Bucket {
-    int id;
-    int owner;
-    String uri;
+    private int id;
+    private String owner;
+    private String uri;
 
     public int getId() {
         return id;
@@ -13,11 +13,11 @@ public class Bucket {
         this.id = id;
     }
 
-    public int getOwner() {
+    public String getOwner() {
         return owner;
     }
 
-    public void setOwner(int owner) {
+    public void setOwner(String owner) {
         this.owner = owner;
     }
 

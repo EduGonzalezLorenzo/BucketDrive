@@ -18,7 +18,7 @@ public class MyService {
     BucketDao bucketDao;
 
     public String addUser(String username, String name, String password) {
-        if (!userDao.checkUserName(username)) return "User name already exists";
+        if (userDao.getUsersByUsername(username).size() != 0) return "User name already exists";
         User user = new User();
         user.setUsername(username);
         user.setName(name);
@@ -27,37 +27,46 @@ public class MyService {
     }
 
     public User login(String username, String password) {
-        User user = userDao.getUserByUserName(username);
-        if (user.getPassword().equals(String.valueOf(password.hashCode()))) return user;
+        List<User> users = userDao.getUsersByUsername(username);
+        if (users.size() == 1) {
+            User user = users.get(0);
+            if (user.getPassword().equals(String.valueOf(password.hashCode()))) return user;
+        }
         return null;
     }
 
-    public String modifyUser(String name, String password, int userId) {
+    public String modifyUser(String name, String password, String username) {
         if (name != null) {
-            return userDao.modifyName(name, userId) == 0 ? "Unable to change name" : "Name changed";
+            return userDao.modifyName(name, username) == 0 ? "Unable to change name" : "Name changed";
         } else {
-            return userDao.modifyPassword(password.hashCode(), userId) == 0 ? "Unable to change password" : "password changed";
+            return userDao.modifyPassword(password.hashCode(), username) == 0 ? "Unable to change password" : "password changed";
         }
     }
 
-    public User getUserById(int id) {
-        return userDao.getUserById(id).get(0);
+    public User getUserById(String username) {
+        return userDao.getUsersByUsername(username).get(0);
     }
 
     public String createBucket(User currentUser, String uri) {
-        if (bucketDao.checkUri(uri, currentUser.getId())) {
+        if (bucketNameAvailable(currentUser, uri)) {
             return bucketDao.createBucket(currentUser, uri) == 0 ? "Database error" : "Success creating bucket";
         } else return "Bucket name already exists";
     }
 
+
+
     public List<Bucket> getBuckets(User user) {
-        return bucketDao.getBucketsFromUser(user.getId());
+        return bucketDao.getBucketsFromUser(user.getUsername());
     }
 
     public String deleteBucket(int id) {
-        Bucket bucketToDelete = bucketDao.getBucketById(id);
-        if (bucketToDelete == null) return "The bucket that you are trying to delete doesn't exists";
-        String bucketName = bucketToDelete.getUri();
-        return bucketDao.deleteBucket(id) == 0 ? "Unable to delete bucket" : "Bucket " + bucketName + " deleted";
+        return bucketDao.deleteBucket(id) == 0 ? "Unable to delete bucket" : "Bucket deleted";
+    }
+
+    //Funciones extra
+    private boolean bucketNameAvailable(User currentUser, String uri) {
+        return bucketDao.getBucketFromUriAndUsername(uri, currentUser.getUsername()).size() == 0;
     }
 }
+
+

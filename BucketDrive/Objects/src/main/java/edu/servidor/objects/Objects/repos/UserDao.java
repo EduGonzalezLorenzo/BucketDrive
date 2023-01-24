@@ -7,17 +7,10 @@ import java.util.List;
 public interface UserDao {
     int addUser(User user);
 
-    List<User> getAllUsers();
+    int modifyName(String name, String username);
 
-    int modifyUsername(String username, int id);
+    int modifyPassword(int password, String username);
 
-    int modifyName(String name, int id);
+    List<User> getUsersByUsername(String username);
 
-    int modifyPassword(int password, int id);
-
-    List<User> getUserById(int id);
-
-    User getUserByUserName(String username);
-
-    boolean checkUserName(String username);
 }

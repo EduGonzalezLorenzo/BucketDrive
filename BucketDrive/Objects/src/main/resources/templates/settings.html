@@ -23,16 +23,6 @@
     <article class="container">
         <form action="/settings" method="post">
             <div class="row mb-3">
-                <p>Current username: <span th:text="${currentUser.username}"></span></p>
-                <label for="username" class="col-sm-6 col-form-label"> New username (between 3 and 10
-                    characters): </label>
-                <input type="text" class="form-control" name="username" id="username">
-            </div>
-            <input class="btn btn-primary" type="submit" value="Change username">
-        </form>
-
-        <form action="/settings" method="post">
-            <div class="row mb-3">
                 <p>Current name: <span th:text="${currentUser.name}"></span></p>
                 <label for="name" class="col-sm-2 col-form-label">New name (between 3 and 30
                     characters): </label>

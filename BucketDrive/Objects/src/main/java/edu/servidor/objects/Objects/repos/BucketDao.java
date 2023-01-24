@@ -8,11 +8,11 @@ import java.util.List;
 public interface BucketDao {
     int createBucket(User currentUser, String uri);
 
-    boolean checkUri(String finalUri, int owner);
+    List<Bucket> getBucketFromUriAndUsername(String finalUri, String username);
 
-    List<Bucket> getBucketsFromUser(int owner);
+    List<Bucket> getBucketsFromUser(String username);
 
     int deleteBucket(int id);
 
-    Bucket getBucketById(int id);
+    List<Bucket> getBucketsById(int id);
 }
