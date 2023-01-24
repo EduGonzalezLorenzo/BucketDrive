@@ -7,7 +7,7 @@ public class BucketForm {
 
     @Pattern(regexp = "^[a-zA-Z0-9_-]*[^/][a-zA-Z0-9_-]*$")
     @Length(min = 1, max = 20)
-    String uri;
+    private String uri;
 
     public String getUri() {
         return uri;

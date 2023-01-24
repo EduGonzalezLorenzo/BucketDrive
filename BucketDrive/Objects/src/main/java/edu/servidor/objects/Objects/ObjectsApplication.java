@@ -23,6 +23,7 @@ public class ObjectsApplication implements WebMvcConfigurer {
 		registry.addInterceptor(new NeededToBeUnloggedInterceptor())
 				.addPathPatterns("/index")
 				.addPathPatterns("/login")
-				.addPathPatterns("/signup");
+				.addPathPatterns("/signup")
+				.addPathPatterns("/");
 	}
 }

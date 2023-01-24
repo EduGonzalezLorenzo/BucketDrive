@@ -9,3 +9,8 @@ nav {
 .nav-hover:hover{
     background-color: rgb(110, 108, 108);
 }
+
+section{
+    margin-bottom:3%;
+    margin-top: 3%;
+}

@@ -2,21 +2,23 @@ package edu.servidor.objects.Objects.controllers;
 
 import edu.servidor.objects.Objects.forms.BucketForm;
 import edu.servidor.objects.Objects.forms.UserForm;
+import edu.servidor.objects.Objects.models.Bucket;
+import edu.servidor.objects.Objects.models.ObjectFile;
 import edu.servidor.objects.Objects.models.User;
 import edu.servidor.objects.Objects.services.MyService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.Banner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -39,17 +41,9 @@ public class AppController {
 
     @PostMapping("/login")
     public String login(HttpSession session, @Valid UserForm userForm, BindingResult bindingResult, Model model) {
-        String errorMessage = "";
         if (bindingResult.hasErrors()) {
-            List<ObjectError> errors = bindingResult.getAllErrors();
-            for (ObjectError error : errors) {
-                if (error instanceof FieldError) {
-                    FieldError fieldError = (FieldError) error;
-                    errorMessage += "-" + fieldError.getField() + ":" + fieldError.getDefaultMessage();
-                    model.addAttribute("message", errorMessage);
-                    return "login";
-                }
-            }
+            model.addAttribute("message", "Data input error");
+            return "login";
         }
         User user = service.login(userForm.getUsername(), userForm.getPassword());
         if (user != null) {
@@ -69,13 +63,7 @@ public class AppController {
     public String signUp(@Valid UserForm userForm, BindingResult bindingResult, Model model) {
         String message = "";
         if (bindingResult.hasErrors()) {
-            List<ObjectError> errors = bindingResult.getAllErrors();
-            for (ObjectError error : errors) {
-                if (error instanceof FieldError) {
-                    FieldError fieldError = (FieldError) error;
-                    message += "-" + fieldError.getField() + ":" + fieldError.getDefaultMessage();
-                }
-            }
+            message = "Data input error";
         } else message = service.addUser(userForm.getUsername(), userForm.getName(), userForm.getPassword());
 
         model.addAttribute("message", message);
@@ -100,13 +88,7 @@ public class AppController {
         String message = "";
         User user = (User) session.getAttribute("currentUser");
         if (bindingResult.hasErrors()) {
-            List<ObjectError> errors = bindingResult.getAllErrors();
-            for (ObjectError error : errors) {
-                if (error instanceof FieldError) {
-                    FieldError fieldError = (FieldError) error;
-                    message += "-" + fieldError.getField() + ":" + fieldError.getDefaultMessage();
-                }
-            }
+            message = "Data input error";
         } else {
             message = service.modifyUser(userForm.getName(), userForm.getPassword(), user.getUsername());
             session.setAttribute("currentUser", service.getUserById(user.getUsername()));
@@ -129,13 +111,7 @@ public class AppController {
         String message = "";
         User user = (User) session.getAttribute("currentUser");
         if (bindingResult.hasErrors()) {
-            List<ObjectError> errors = bindingResult.getAllErrors();
-            for (ObjectError error : errors) {
-                if (error instanceof FieldError) {
-                    FieldError fieldError = (FieldError) error;
-                    message += "-" + fieldError.getField() + ":" + fieldError.getDefaultMessage();
-                }
-            }
+            message = "Data input error";
         } else {
             message = service.createBucket(user, bucketForm.getUri());
         }
@@ -144,8 +120,32 @@ public class AppController {
         return "objects";
     }
 
+    @GetMapping("/objects/{name}/")
+    public String showBucket(@PathVariable String name, HttpSession session, Model model) {
+        User user = (User) session.getAttribute("currentUser");
+        int bucketID = service.getBucketID(name, user.getUsername());
+        List<ObjectFile> objects = service.getObjectsFromBucket(bucketID);
+        model.addAttribute("bucket", name);
+        model.addAttribute("objects", objects);
+        return "bucket";
+    }
+
+    @PostMapping("/objects/{name}/")
+    public String createObject(@PathVariable String name, @RequestParam("file") MultipartFile file, @RequestParam("path") String path, Model model, HttpSession session) throws IOException {
+        User user = (User) session.getAttribute("currentUser");
+        Bucket bucket = service.getBucketByNameOwner(name, user.getUsername());
+        String message = service.createObject(file, path, bucket, user);
+        List<ObjectFile> objects = service.getObjectsFromBucket(bucket.getId());
+
+        model.addAttribute("message", message);
+        model.addAttribute("bucket", bucket);
+        model.addAttribute("objects", objects);
+
+        return ("redirect:/objects/" + bucket.getUri() + "/");
+    }
+
     @PostMapping("/deletebucket/{id}")
-    public String deleteBucket(@PathVariable int id, Model model, HttpSession session){
+    public String deleteBucket(@PathVariable int id, Model model, HttpSession session) {
         model.addAttribute("message", service.deleteBucket(id));
         model.addAttribute("buckets", service.getBuckets((User) session.getAttribute("currentUser")));
         return "objects";

@@ -15,4 +15,7 @@ public interface BucketDao {
     int deleteBucket(int id);
 
     List<Bucket> getBucketsById(int id);
+
+    List<Bucket>  getBucketByNameOwner(String name, String username);
+
 }

@@ -24,14 +24,14 @@
         <div class="row mb-3">
             <label for="username" class="col-sm-2 col-form-label"> User name (between 3 and 10 characters):</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" name="username" id="username">
+                <input type="text" class="form-control" name="username" id="username" minlength="3" maxlength="10">
             </div>
         </div>
 
         <div class="row mb-3">
             <label for="name" class="col-sm-2 col-form-label">Real name (between 3 and 30 characters):</label>
             <div class="col-sm-10">
-                <input type="text" name="name" class="form-control" id="name">
+                <input type="text" name="name" class="form-control" id="name" minlength="3" maxlength="30">
             </div>
         </div>
 
@@ -39,14 +39,14 @@
             <label for="password" class="col-sm-2 col-form-label">Insert password (between 3 and 10
                 characters):</label>
             <div class="col-sm-10">
-                <input type="text" name="password" class="form-control" id="password">
+                <input type="text" name="password" class="form-control" id="password" minlength="3" maxlength="10">
             </div>
         </div>
 
         <div class="row mb-3">
             <label for="passwordRepeat" class="col-sm-2 col-form-label">Repeat password:</label>
             <div class="col-sm-10">
-                <input type="text" name="passwordRepeat" class="form-control" id="passwordRepeat">
+                <input type="text" name="passwordRepeat" class="form-control" id="passwordRepeat" minlength="3" maxlength="10">
             </div>
         </div>
         <input class="btn btn-primary" type="submit" value="Sign up!">

@@ -5,13 +5,13 @@ import org.hibernate.validator.constraints.Range;
 
 public class UserForm {
     @Length(min = 3, max = 10)
-    String username;
+    private String username;
 
     @Length(min = 3, max = 10)
-    String password;
+    private String password;
 
     @Length(min = 3, max = 30)
-    String name;
+    private String name;
 
     public String getUsername() {
         return username;
