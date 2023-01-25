@@ -9,6 +9,10 @@ import edu.servidor.objects.Objects.services.MyService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -149,5 +153,17 @@ public class AppController {
         model.addAttribute("message", service.deleteBucket(id));
         model.addAttribute("buckets", service.getBuckets((User) session.getAttribute("currentUser")));
         return "objects";
+    }
+
+    @GetMapping("/download/{objid}/{fid}")
+    public ResponseEntity<byte[]> download(@PathVariable int objid, @PathVariable int fid) {
+        ObjectFile objectFile = new ObjectFile(); //TODO obtener el objeto Y versión solicitadas por le usuario
+        byte[] fileContent = objectFile.getBody();
+        String name = objectFile.getUri(); //TODO hacer service que extraiga el nombre del archivo, no hay que devolver bucket/carpeta/archivo.txt hay que devolver archivo.txt
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.valueOf(objectFile.getContentType()));
+        headers.setContentLength(objectFile.getContentLength());
+        headers.set("Content-disposition", "attachment;filename=" + name);
+        return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
     }
 }
