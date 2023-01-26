@@ -8,4 +8,6 @@ public interface ObjectDao {
     List<ObjectFile> getObjectsFromBucket(int bucketID);
 
     int createObject(ObjectFile objectFile);
+
+    List<ObjectFile> getObjectsFromUri(String uri);
 }

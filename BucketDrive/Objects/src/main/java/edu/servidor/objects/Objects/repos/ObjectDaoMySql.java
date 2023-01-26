@@ -22,7 +22,12 @@ public class ObjectDaoMySql implements ObjectDao {
 
     @Override
     public int createObject(ObjectFile objectFile) {
-        return jdbcTemplate.update("INSERT INTO `object` (`uri`, `body`, `bucketId`, `versionId`, `owner`, `contentLength`, `contentType`, `lastModified`, `created`, `ETag`, `metadataId`)" +
-                " VALUES (?,?,?,?,?,?,?,?,?,?,?)",objectFile.getUri(), objectFile.getBody(), objectFile.getBucketId(), objectFile.getVersionId(), objectFile.getOwner(), objectFile.getContentLength(), objectFile.getContentType(), objectFile.getLastModified(), objectFile.getCreated(), objectFile.getETag(), 0);
+        return jdbcTemplate.update("INSERT INTO `object` (`uri`, `bucketId`, `owner`, `contentType`, `lastModified`, `created`, `metadataId`) VALUES (?,?,?,?,?,?,?)"
+                , objectFile.getUri(), objectFile.getBucketId(), objectFile.getOwner(), objectFile.getContentType(), objectFile.getLastModified(), objectFile.getCreated(), 0);
+    }
+
+    @Override
+    public List<ObjectFile> getObjectsFromUri(String uri) {
+        return jdbcTemplate.query("SELECT * FROM object WHERE uri = ?", new BeanPropertyRowMapper<>(ObjectFile.class), uri);
     }
 }

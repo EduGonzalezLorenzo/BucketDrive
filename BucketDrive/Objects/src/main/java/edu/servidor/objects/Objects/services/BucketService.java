@@ -1,25 +1,22 @@
 package edu.servidor.objects.Objects.services;
 
-import edu.servidor.objects.Objects.models.Bucket;
-import edu.servidor.objects.Objects.models.ObjectFile;
-import edu.servidor.objects.Objects.models.User;
+import edu.servidor.objects.Objects.models.*;
 import edu.servidor.objects.Objects.repos.BucketDao;
+import edu.servidor.objects.Objects.repos.FileDao;
 import edu.servidor.objects.Objects.repos.ObjectDao;
-import edu.servidor.objects.Objects.repos.UserDao;
+import edu.servidor.objects.Objects.repos.ReferenceObjectToFileDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @Component
-public class MyService {
-    @Autowired
-    UserDao userDao;
+public class BucketService {
 
     @Autowired
     BucketDao bucketDao;
@@ -27,35 +24,11 @@ public class MyService {
     @Autowired
     ObjectDao objectDao;
 
-    public String addUser(String username, String name, String password) {
-        if (userDao.getUsersByUsername(username).size() != 0) return "User name already exists";
-        User user = new User();
-        user.setUsername(username);
-        user.setName(name);
-        user.setPassword(String.valueOf(password.hashCode()));
-        return userDao.addUser(user) == 0 ? "Database error" : "Sign up successfully!";
-    }
+    @Autowired
+    FileDao fileDao;
 
-    public User login(String username, String password) {
-        List<User> users = userDao.getUsersByUsername(username);
-        if (users.size() == 1) {
-            User user = users.get(0);
-            if (user.getPassword().equals(String.valueOf(password.hashCode()))) return user;
-        }
-        return null;
-    }
-
-    public String modifyUser(String name, String password, String username) {
-        if (name != null) {
-            return userDao.modifyName(name, username) == 0 ? "Unable to change name" : "Name changed";
-        } else {
-            return userDao.modifyPassword(password.hashCode(), username) == 0 ? "Unable to change password" : "Password changed";
-        }
-    }
-
-    public User getUserById(String username) {
-        return userDao.getUsersByUsername(username).get(0);
-    }
+    @Autowired
+    ReferenceObjectToFileDao referenceObjectToFileDao;
 
     public String createBucket(User currentUser, String uri) {
         if (bucketNameAvailable(currentUser, uri)) {
@@ -75,7 +48,6 @@ public class MyService {
         return bucketDao.deleteBucket(id) == 0 ? "Unable to delete bucket" : "Bucket deleted";
     }
 
-
     public int getBucketID(String name, String username) {
         List<Bucket> buckets = bucketDao.getBucketByNameOwner(name, username);
         if (buckets.size() == 1) return buckets.get(0).getId();
@@ -87,22 +59,40 @@ public class MyService {
     }
 
     public String createObject(MultipartFile file, String path, Bucket bucket, User user) throws IOException {
-        ObjectFile objectFile = new ObjectFile();
-
         Timestamp currentTime = new Timestamp(new Date().getTime());
-        objectFile.setBody(file.getBytes());
+        String uri = generateUri(bucket, path, file.getOriginalFilename());
+        ObjectFile objectFile = generateObject(currentTime, bucket, user, file, uri);
+        byte[] body = file.getBytes();
+        List<FileData> files = fileDao.getFileByBody(body);
+        if (files.size() == 0) fileDao.createFile(body);
+        files = fileDao.getFileByBody(body);
+        int fileId = files.get(0).getId();
+
+        if (objectDao.createObject(objectFile) == 0) return "Error creating object";
+
+        objectFile = objectDao.getObjectsFromUri(uri).get(0);
+
+        referenceObjectToFileDao.insertRow(objectFile.getId(), fileId, currentTime);
+
+        return "Object created successfully";
+    }
+
+    private String generateUri(Bucket bucket, String path, String fileName) {
+        if (!path.startsWith("/")) path = "/" + path;
+        if (!path.endsWith("/")) path = path + "/";
+        return bucket.getUri() + path + fileName;
+    }
+
+    private ObjectFile generateObject(Timestamp currentTime, Bucket bucket, User user, MultipartFile file, String uri) {
+        ObjectFile objectFile = new ObjectFile();
+        objectFile.setMetadataId(new HashMap<>());
         objectFile.setCreated(currentTime);
         objectFile.setLastModified(currentTime);
         objectFile.setBucketId(bucket.getId());
-        objectFile.setETag(String.valueOf(Arrays.hashCode(file.getBytes())));
-        objectFile.setUri(bucket.getUri() + "/" + path + "/" + file.getOriginalFilename());
+        objectFile.setUri(uri);
         objectFile.setOwner(user.getUsername());
-        objectFile.setContentLength(file.getSize());
         objectFile.setContentType(file.getContentType());
-        objectFile.setVersionId(1);
-
-        if (objectDao.createObject(objectFile) == 0) return "Error creating object";
-        return "Object created successfully";
+        return objectFile;
     }
 
     public Bucket getBucketByNameOwner(String bucket, String username) {
