@@ -3,10 +3,19 @@ package edu.servidor.objects.Objects.models;
 import java.sql.Timestamp;
 
 public class ReferenceObjectToFile {
+    private int id;
     private int objectId;
     private int fileId;
     private Timestamp uploadDate;
     private int versionId;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public int getObjectId() {
         return objectId;
@@ -39,5 +48,4 @@ public class ReferenceObjectToFile {
     public void setVersionId(int versionId) {
         this.versionId = versionId;
     }
-
 }

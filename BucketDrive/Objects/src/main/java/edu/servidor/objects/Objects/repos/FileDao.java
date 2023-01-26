@@ -8,4 +8,6 @@ public interface FileDao {
     List<FileData> getFileByBody(byte[] body);
 
     int createFile(byte[] body);
+
+    int removeFile(int fileId);
 }

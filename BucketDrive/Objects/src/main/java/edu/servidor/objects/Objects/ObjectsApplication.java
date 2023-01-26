@@ -17,7 +17,7 @@ public class ObjectsApplication implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry){
 		registry.addInterceptor(new NeedToBeLoggedInterceptor())
-				.addPathPatterns("/objects")
+				.addPathPatterns("/objects/**")
 				.addPathPatterns("/settings");
 
 		registry.addInterceptor(new NeededToBeUnloggedInterceptor())

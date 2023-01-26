@@ -22,4 +22,9 @@ public class FileDaoMySql implements FileDao {
     public int createFile(byte[] body) {
         return jdbcTemplate.update("INSERT INTO file (body) values (?)", body);
     }
+
+    @Override
+    public int removeFile(int fileId) {
+        return jdbcTemplate.update("DELETE FROM file WHERE id = ?;", fileId);
+    }
 }

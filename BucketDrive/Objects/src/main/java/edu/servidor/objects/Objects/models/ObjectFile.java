@@ -11,7 +11,7 @@ public class ObjectFile {
     private String contentType;
     private Timestamp lastModified;
     private Timestamp created;
-    private Map<String, String> metadataId;
+    private int metadataId;
 
     public int getId() {
         return id;
@@ -69,11 +69,11 @@ public class ObjectFile {
         this.created = created;
     }
 
-    public Map<String, String> getMetadataId() {
+    public int getMetadataId() {
         return metadataId;
     }
 
-    public void setMetadataId(Map<String, String> metadataId) {
+    public void setMetadataId(int metadataId) {
         this.metadataId = metadataId;
     }
 }

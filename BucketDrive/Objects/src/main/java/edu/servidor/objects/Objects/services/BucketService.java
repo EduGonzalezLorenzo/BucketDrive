@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -45,7 +44,21 @@ public class BucketService {
     }
 
     public String deleteBucket(int id) {
+        List<ObjectFile> objects = objectDao.getObjectsFromBucket(id);
+        for (ObjectFile objectFile : objects) {
+            int objectId = objectFile.getId();
+            List<ReferenceObjectToFile> referenceObjectToFile = referenceObjectToFileDao.getRowFromObjectId(objectId);
+            ReferenceObjectToFile fileToObjectRow = referenceObjectToFile.get(0);
+            referenceObjectToFileDao.deleteFromObjectId(objectId);
+            objectDao.deleteFromId(objectId);
+            checkFilesToDelete(fileToObjectRow.getFileId());
+        }
         return bucketDao.deleteBucket(id) == 0 ? "Unable to delete bucket" : "Bucket deleted";
+    }
+
+    private void checkFilesToDelete(int fileId) {
+        List<ReferenceObjectToFile> filesToObject = referenceObjectToFileDao.getRowFromFileId(fileId);
+        if (filesToObject.size() == 0) fileDao.removeFile(fileId);
     }
 
     public int getBucketID(String name, String username) {
@@ -54,9 +67,18 @@ public class BucketService {
         return 0;
     }
 
-    public List<ObjectFile> getObjectsFromBucket(int bucketID) {
-        return objectDao.getObjectsFromBucket(bucketID);
+    public List<ObjectFile> getObjectsFromBucketFromUri(int bucketID, String uri) {
+        List<ObjectFile> allBucketObjects = objectDao.getObjectsFromBucket(bucketID);
+        //Buscar la primera barra y cortar lo que hay antes. Asi eliminas /objects. Ahora tienes la url pura.
+        int position = uri.indexOf("/");
+        for (ObjectFile objectFile : allBucketObjects) {
+            String objectUri = objectFile.getUri();
+            if (objectUri.length() < position) allBucketObjects.remove(objectFile);
+            else objectFile.setUri(objectUri.split("/")[position]);
+        }
+        return allBucketObjects;
     }
+
 
     public String createObject(MultipartFile file, String path, Bucket bucket, User user) throws IOException {
         Timestamp currentTime = new Timestamp(new Date().getTime());
@@ -85,7 +107,7 @@ public class BucketService {
 
     private ObjectFile generateObject(Timestamp currentTime, Bucket bucket, User user, MultipartFile file, String uri) {
         ObjectFile objectFile = new ObjectFile();
-        objectFile.setMetadataId(new HashMap<>());
+        objectFile.setMetadataId(0);
         objectFile.setCreated(currentTime);
         objectFile.setLastModified(currentTime);
         objectFile.setBucketId(bucket.getId());
@@ -99,6 +121,10 @@ public class BucketService {
         List<Bucket> buckets = bucketDao.getBucketByNameOwner(bucket, username);
         if (buckets.size() == 1) return buckets.get(0);
         return null;
+    }
+
+    public List<ObjectFile> getObjectsFromBucket(int id) {
+        return objectDao.getObjectsFromBucket(id);
     }
 }
 

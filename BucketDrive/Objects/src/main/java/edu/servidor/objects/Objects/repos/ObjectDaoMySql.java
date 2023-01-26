@@ -30,4 +30,9 @@ public class ObjectDaoMySql implements ObjectDao {
     public List<ObjectFile> getObjectsFromUri(String uri) {
         return jdbcTemplate.query("SELECT * FROM object WHERE uri = ?", new BeanPropertyRowMapper<>(ObjectFile.class), uri);
     }
+
+    @Override
+    public int deleteFromId(int objectId) {
+        return jdbcTemplate.update("DELETE FROM object WHERE id = ?;", objectId);
+    }
 }

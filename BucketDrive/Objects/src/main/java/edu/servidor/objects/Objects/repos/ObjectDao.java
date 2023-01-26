@@ -10,4 +10,6 @@ public interface ObjectDao {
     int createObject(ObjectFile objectFile);
 
     List<ObjectFile> getObjectsFromUri(String uri);
+
+    int deleteFromId(int objectId);
 }
