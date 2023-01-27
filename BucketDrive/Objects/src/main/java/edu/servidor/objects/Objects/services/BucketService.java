@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class BucketService {
     }
 
     private boolean bucketNameAvailable(User currentUser, String uri) {
-        return bucketDao.getBucketFromUriAndUsername(uri, currentUser.getUsername()).size() == 0;
+        return bucketDao.getBucketFromUri(uri).size() == 0;
     }
 
     public List<Bucket> getBuckets(User user) {
@@ -67,18 +68,28 @@ public class BucketService {
         return 0;
     }
 
-    public List<ObjectFile> getObjectsFromBucketFromUri(int bucketID, String uri) {
+    public List<String> getObjectsFromBucketFromUri(int bucketID, String uri) {
         List<ObjectFile> allBucketObjects = objectDao.getObjectsFromBucket(bucketID);
+        int uriPosition = uri.split("/").length;
+        List<String> objectsPaths = new ArrayList<>();
         //Buscar la primera barra y cortar lo que hay antes. Asi eliminas /objects. Ahora tienes la url pura.
-        int position = uri.indexOf("/");
         for (ObjectFile objectFile : allBucketObjects) {
             String objectUri = objectFile.getUri();
-            if (objectUri.length() < position) allBucketObjects.remove(objectFile);
-            else objectFile.setUri(objectUri.split("/")[position]);
+            objectUri = getCurrentUri(objectUri, uriPosition);
+            if (objectUri.equals("")) continue;
+            if (objectUri.contains("/")) objectUri = (objectUri.substring(0, objectUri.indexOf("/") + 1));
+            if (!objectsPaths.contains(objectUri)) objectsPaths.add(objectUri);
         }
-        return allBucketObjects;
+        return objectsPaths;
     }
 
+    public String getCurrentUri(String uri, int position) {
+        if (uri.split("/").length <=position) return "";
+        for (int i = 0; i < position; i++) {
+            uri = uri.substring(uri.indexOf("/") + 1);
+        }
+        return uri;
+    }
 
     public String createObject(MultipartFile file, String path, Bucket bucket, User user) throws IOException {
         Timestamp currentTime = new Timestamp(new Date().getTime());

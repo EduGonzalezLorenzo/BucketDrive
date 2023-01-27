@@ -53,18 +53,18 @@ public class BucketController {
     public String showBucketContent(@PathVariable String path, HttpSession session, Model model) {
         User user = (User) session.getAttribute("currentUser");
         int bucketID = bucketService.getBucketID(path, user.getUsername());
-        List<ObjectFile> objects = bucketService.getObjectsFromBucketFromUri(bucketID, path);
+        List<String> objects = bucketService.getObjectsFromBucketFromUri(bucketID, path);
         model.addAttribute("bucket", path);
         model.addAttribute("objects", objects);
         return "bucket";
     }
 
-    @PostMapping("/objects/{name}/")
-    public String createObject(@PathVariable String name, @RequestParam("file") MultipartFile file, @RequestParam("path") String path, Model model, HttpSession session) throws IOException {
+    @PostMapping("/objects/{bucketName}/")
+    public String createObject(@PathVariable String bucketName, @RequestParam("file") MultipartFile file, @RequestParam("path") String path, Model model, HttpSession session) throws IOException {
         String message = "";
         User user = (User) session.getAttribute("currentUser");
-        Bucket bucket = bucketService.getBucketByNameOwner(name, user.getUsername());
-        if (Objects.equals(file.getOriginalFilename(), "")) message = "You need to upload a file" ;
+        Bucket bucket = bucketService.getBucketByNameOwner(bucketName, user.getUsername());
+        if (Objects.equals(file.getOriginalFilename(), "")) message = "You need to upload a file";
         else {
             message = bucketService.createObject(file, path, bucket, user);
             List<ObjectFile> objects = bucketService.getObjectsFromBucket(bucket.getId());
@@ -76,12 +76,23 @@ public class BucketController {
         return ("redirect:/objects/" + bucket.getUri() + "/");
     }
 
-//    Para sacar la url completa en el caso de las ** que no pueden ser referenciadas.
+    //    Para sacar la url completa en el caso de las ** que no pueden ser referenciadas.
     @GetMapping("/objects/{bucket}/**")
-    public String setObject(HttpServletRequest request, Model model){
+    public String setObject(HttpServletRequest request, HttpSession session, Model model) {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        model.addAttribute("message", path);
-        return "bucket";
+        path = path.substring(1);
+        path = path.substring(path.indexOf("/")+1);
+        if (path.endsWith("/")){
+            User user = (User) session.getAttribute("currentUser");
+            int bucketID = bucketService.getBucketID(path.split("/")[0], user.getUsername());
+            List<String> objects = bucketService.getObjectsFromBucketFromUri(bucketID, path);
+            model.addAttribute("bucket", path.substring(0,path.length()-1));
+            model.addAttribute("objects", objects);
+            return "bucket";
+        }else {
+            model.addAttribute("message", path);
+            return "object";//template de opciones de un objeto
+        }
     }
 
 

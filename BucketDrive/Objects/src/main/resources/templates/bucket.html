@@ -15,9 +15,9 @@
 <body>
     <nav th:replace="navbarLoged.html :: nav"></nav>
     <article class="container">
-        <h1 th:text="'Bucket: ' + ${bucket}" class="text-center"></h1>
+        <h1 th:text="'Location: ' + ${bucket}" class="text-center"></h1>
         <section>
-            <form action="#" th:action="@{/objects/{path}/(path=${bucket})}" method="post"
+            <form action="#" th:action="@{/objects/{bucketName}/(bucketName=${bucket})}" method="post"
                 enctype="multipart/form-data">
                 <div class="container" th:if="${message != null}">
                     <p th:text="${message}"></p>
@@ -34,15 +34,11 @@
             <table>
                 <tr th:each="object: ${objects}">
                     <td>
-                        <a th:href="@{/objects/{bucket}/{path}(path=${object.uri} ,bucket=${bucket})}">
-                            <p th:text="${object.uri}"></p>
+                        <a th:href="@{/objects/{bucket}/{path}(path=${object} ,bucket=${bucket})}">
+                            <p th:text="${object}"></p>
                         </a>
                     </td>
-                    <td>
-                        <form action="#" th:action="@{/delete/{id}(id=${object.id})}" method="post">
-                            <input type="submit" value="Delete this object">
-                        </form>
-                    </td>
+
                 </tr>
             </table>
         </section>

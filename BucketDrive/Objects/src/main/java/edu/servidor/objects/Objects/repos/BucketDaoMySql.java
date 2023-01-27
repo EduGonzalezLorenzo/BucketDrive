@@ -20,8 +20,8 @@ public class BucketDaoMySql implements BucketDao {
     }
 
     @Override
-    public List<Bucket> getBucketFromUriAndUsername(String finalUri, String username) {
-        return jdbcTemplate.query("SELECT * from bucket where uri = ? and owner = ?", new BeanPropertyRowMapper<>(Bucket.class), finalUri, username);
+    public List<Bucket> getBucketFromUri(String uri) {
+        return jdbcTemplate.query("SELECT * from bucket where uri = ?", new BeanPropertyRowMapper<>(Bucket.class), uri);
     }
 
     @Override

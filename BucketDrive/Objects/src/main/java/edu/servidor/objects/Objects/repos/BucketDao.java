@@ -8,7 +8,7 @@ import java.util.List;
 public interface BucketDao {
     int createBucket(User currentUser, String uri);
 
-    List<Bucket> getBucketFromUriAndUsername(String finalUri, String username);
+    List<Bucket> getBucketFromUri(String uri);
 
     List<Bucket> getBucketsFromUser(String username);
 
