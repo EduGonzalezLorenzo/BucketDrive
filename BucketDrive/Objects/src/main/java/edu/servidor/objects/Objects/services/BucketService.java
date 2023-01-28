@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +31,10 @@ public class BucketService {
     @Autowired
     ReferenceObjectToFileDao referenceObjectToFileDao;
 
+    public List<ReferenceObjectToFile> getObjectVersions(int objectId) {
+        return referenceObjectToFileDao.getRowFromObjectId(objectId);
+    }
+
     public String createBucket(User currentUser, String uri) {
         if (bucketNameAvailable(currentUser, uri)) {
             return bucketDao.createBucket(currentUser, uri) == 0 ? "Database error" : "Success creating bucket";
@@ -44,8 +49,8 @@ public class BucketService {
         return bucketDao.getBucketsFromUser(user.getUsername());
     }
 
-    public String deleteBucket(int id) {
-        List<ObjectFile> objects = objectDao.getObjectsFromBucket(id);
+    public String deleteBucket(int bucketId) {
+        List<ObjectFile> objects = objectDao.getObjectsFromBucket(bucketId);
         for (ObjectFile objectFile : objects) {
             int objectId = objectFile.getId();
             List<ReferenceObjectToFile> referenceObjectToFile = referenceObjectToFileDao.getRowFromObjectId(objectId);
@@ -54,12 +59,13 @@ public class BucketService {
             objectDao.deleteFromId(objectId);
             checkFilesToDelete(fileToObjectRow.getFileId());
         }
-        return bucketDao.deleteBucket(id) == 0 ? "Unable to delete bucket" : "Bucket deleted";
+        return bucketDao.deleteBucket(bucketId) == 0 ? "Unable to delete bucket" : "Bucket deleted";
     }
 
     private void checkFilesToDelete(int fileId) {
-        List<ReferenceObjectToFile> filesToObject = referenceObjectToFileDao.getRowFromFileId(fileId);
-        if (filesToObject.size() == 0) fileDao.removeFile(fileId);
+        List<FileData> filesToObject = fileDao.getFileById(fileId);
+        if (filesToObject.get(0).getRef() == 1) fileDao.removeFile(fileId);
+        else fileDao.modifyRefCounter(fileId, filesToObject.get(0).getRef() - 1);
     }
 
     public int getBucketID(String name, String username) {
@@ -70,12 +76,18 @@ public class BucketService {
 
     public List<String> getObjectsFromBucketFromUri(int bucketID, String uri) {
         List<ObjectFile> allBucketObjects = objectDao.getObjectsFromBucket(bucketID);
-        int uriPosition = uri.split("/").length;
+        String[] splitUri = uri.split("/");
+        int uriPosition = splitUri.length;
+        String currentFolder = splitUri[splitUri.length - 1];
+
+        return getObjectsPaths(allBucketObjects, uriPosition, currentFolder);
+    }
+
+    private List<String> getObjectsPaths(List<ObjectFile> allBucketObjects, int uriPosition, String currentFolder) {
         List<String> objectsPaths = new ArrayList<>();
-        //Buscar la primera barra y cortar lo que hay antes. Asi eliminas /objects. Ahora tienes la url pura.
         for (ObjectFile objectFile : allBucketObjects) {
             String objectUri = objectFile.getUri();
-            objectUri = getCurrentUri(objectUri, uriPosition);
+            objectUri = getCurrentUri(objectUri, uriPosition, currentFolder);
             if (objectUri.equals("")) continue;
             if (objectUri.contains("/")) objectUri = (objectUri.substring(0, objectUri.indexOf("/") + 1));
             if (!objectsPaths.contains(objectUri)) objectsPaths.add(objectUri);
@@ -83,12 +95,22 @@ public class BucketService {
         return objectsPaths;
     }
 
-    public String getCurrentUri(String uri, int position) {
-        if (uri.split("/").length <=position) return "";
+    public String getCurrentUri(String uri, int position, String currentFolder) {
+        if (uri.split("/").length <= position) return "";
         for (int i = 0; i < position; i++) {
+            if (lastLap(position, i) && sameOrigin(currentFolder, uri)) return "";
             uri = uri.substring(uri.indexOf("/") + 1);
         }
         return uri;
+    }
+
+    private boolean lastLap(int position, int i) {
+        return i == (position - 1);
+    }
+
+    private boolean sameOrigin(String currentFolder, String uri) {
+        String source = uri.substring(0, uri.indexOf("/"));
+        return !source.equals(currentFolder);
     }
 
     public String createObject(MultipartFile file, String path, Bucket bucket, User user) throws IOException {
@@ -96,9 +118,14 @@ public class BucketService {
         String uri = generateUri(bucket, path, file.getOriginalFilename());
         ObjectFile objectFile = generateObject(currentTime, bucket, user, file, uri);
         byte[] body = file.getBytes();
-        List<FileData> files = fileDao.getFileByBody(body);
+        int bodyHash = Arrays.hashCode(body);
+        List<FileData> files = fileDao.getFileByHash(bodyHash);
         if (files.size() == 0) fileDao.createFile(body);
-        files = fileDao.getFileByBody(body);
+        else {
+            FileData fileData = files.get(0);
+            fileDao.modifyRefCounter(fileData.getId(), fileData.getRef() + 1);
+        }
+        files = fileDao.getFileByHash(bodyHash);
         int fileId = files.get(0).getId();
 
         if (objectDao.createObject(objectFile) == 0) return "Error creating object";
@@ -136,6 +163,10 @@ public class BucketService {
 
     public List<ObjectFile> getObjectsFromBucket(int id) {
         return objectDao.getObjectsFromBucket(id);
+    }
+
+    public int getObjectId(String path) {
+        return objectDao.getObjectsFromUri(path).get(0).getId();
     }
 }
 

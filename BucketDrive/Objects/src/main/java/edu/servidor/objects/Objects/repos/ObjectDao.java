@@ -12,4 +12,6 @@ public interface ObjectDao {
     List<ObjectFile> getObjectsFromUri(String uri);
 
     int deleteFromId(int objectId);
+
+//    List<ObjectFile> getObjectsAndVersionsFromUri(String substring);
 }

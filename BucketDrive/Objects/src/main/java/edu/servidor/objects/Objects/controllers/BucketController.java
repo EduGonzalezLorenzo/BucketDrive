@@ -3,6 +3,7 @@ package edu.servidor.objects.Objects.controllers;
 import edu.servidor.objects.Objects.forms.BucketForm;
 import edu.servidor.objects.Objects.models.Bucket;
 import edu.servidor.objects.Objects.models.ObjectFile;
+import edu.servidor.objects.Objects.models.ReferenceObjectToFile;
 import edu.servidor.objects.Objects.models.User;
 import edu.servidor.objects.Objects.services.BucketService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -61,6 +62,7 @@ public class BucketController {
 
     @PostMapping("/objects/{bucketName}/")
     public String createObject(@PathVariable String bucketName, @RequestParam("file") MultipartFile file, @RequestParam("path") String path, Model model, HttpSession session) throws IOException {
+        //TODO añadir ya hay algo con el mismo path Y nombre de fichero añadirlo como versión de ese objeto en la tabla objectToFile
         String message = "";
         User user = (User) session.getAttribute("currentUser");
         Bucket bucket = bucketService.getBucketByNameOwner(bucketName, user.getUsername());
@@ -76,34 +78,39 @@ public class BucketController {
         return ("redirect:/objects/" + bucket.getUri() + "/");
     }
 
-    //    Para sacar la url completa en el caso de las ** que no pueden ser referenciadas.
     @GetMapping("/objects/{bucket}/**")
     public String setObject(HttpServletRequest request, HttpSession session, Model model) {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         path = path.substring(1);
         path = path.substring(path.indexOf("/")+1);
+
         if (path.endsWith("/")){
             User user = (User) session.getAttribute("currentUser");
             int bucketID = bucketService.getBucketID(path.split("/")[0], user.getUsername());
             List<String> objects = bucketService.getObjectsFromBucketFromUri(bucketID, path);
+
             model.addAttribute("bucket", path.substring(0,path.length()-1));
             model.addAttribute("objects", objects);
+
             return "bucket";
         }else {
-            model.addAttribute("message", path);
+            List<ReferenceObjectToFile> objectVersions = bucketService.getObjectVersions(bucketService.getObjectId(path));
+            String[] splitPath = path.split("/");
+            model.addAttribute("fileName", splitPath[splitPath.length-1]);
+            model.addAttribute("versions", objectVersions);
+
             return "object";//template de opciones de un objeto
         }
     }
 
-
 //    @GetMapping("/download/{objid}/{fid}")
 //    public ResponseEntity<byte[]> download(@PathVariable int objid, @PathVariable int fid) {
 //        ObjectFile objectFile = new ObjectFile(); //TODO obtener el objeto Y versión solicitadas por le usuario
-//        byte[] fileContent = objectFile.getBody();
+//        byte[] fileContent = objectFile.get;
 //        String name = objectFile.getUri(); //TODO hacer service que extraiga el nombre del archivo, no hay que devolver bucket/carpeta/archivo.txt hay que devolver archivo.txt
 //        HttpHeaders headers = new HttpHeaders();
 //        headers.setContentType(MediaType.valueOf(objectFile.getContentType()));
-//        headers.setContentLength(objectFile.getContentLength());
+//        headers.setContentLength(fileContent.length);
 //        headers.set("Content-disposition", "attachment;filename=" + name);
 //        return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
 //    }
