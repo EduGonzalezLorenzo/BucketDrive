@@ -78,18 +78,16 @@ public class BucketService {
 
     public List<String> getObjectsFromBucketFromUri(int bucketID, String uri) {
         List<ObjectFile> allBucketObjects = objectDao.getObjectsFromBucket(bucketID);
-        String[] splitUri = uri.split("/");
-        int uriPosition = splitUri.length;
-        String currentFolder = splitUri[splitUri.length - 1];
 
-        return getObjectsPaths(allBucketObjects, uriPosition, currentFolder);
+        return getObjectsPaths(allBucketObjects, uri);
     }
 
-    private List<String> getObjectsPaths(List<ObjectFile> allBucketObjects, int uriPosition, String currentFolder) {
+    private List<String> getObjectsPaths(List<ObjectFile> allBucketObjects, String uri) {
+        int uriPosition = uri.split("/").length;
         List<String> objectsPaths = new ArrayList<>();
         for (ObjectFile objectFile : allBucketObjects) {
             String objectUri = objectFile.getUri();
-            objectUri = getCurrentUri(objectUri, uriPosition, currentFolder);
+            objectUri = getCurrentUri(objectUri, uriPosition, uri);
             if (objectUri.equals("")) continue;
             if (objectUri.contains("/")) objectUri = (objectUri.substring(0, objectUri.indexOf("/") + 1));
             if (!objectsPaths.contains(objectUri)) objectsPaths.add(objectUri);
@@ -98,21 +96,14 @@ public class BucketService {
     }
 
     public String getCurrentUri(String uri, int position, String currentFolder) {
-        if (uri.split("/").length <= position) return "";
+        String[] uriSplit = uri.split("/");
+        String[] currentFolderSplit = currentFolder.split("/");
+        if (uriSplit.length <= position) return "";
         for (int i = 0; i < position; i++) {
-            if (lastLap(position, i) && sameOrigin(currentFolder, uri)) return "";
+            if (!uriSplit[i].equals(currentFolderSplit[i])) return "";
             uri = uri.substring(uri.indexOf("/") + 1);
         }
         return uri;
-    }
-
-    private boolean lastLap(int position, int i) {
-        return i == (position - 1);
-    }
-
-    private boolean sameOrigin(String currentFolder, String uri) {
-        String source = uri.substring(0, uri.indexOf("/"));
-        return !source.equals(currentFolder);
     }
 
     public String createObject(MultipartFile file, String path, Bucket bucket, User user) throws IOException {
@@ -195,6 +186,15 @@ public class BucketService {
     public String getFileName(ObjectFile objectFile) {
         String[] objectFileUriSplit = objectFile.getUri().split("/");
         return objectFileUriSplit[objectFileUriSplit.length - 1];
+    }
+
+    public Object deleteObject(int objectId) {
+        List<ReferenceObjectToFile> referenceObjectToFile = referenceObjectToFileDao.getRowsFromObjectId(objectId);
+        referenceObjectToFileDao.deleteFromObjectId(objectId);
+        int deletedObjects = objectDao.deleteFromId(objectId);
+        checkFilesToDelete(referenceObjectToFile);
+
+        return deletedObjects == 0 ? "Unable to delete object" : "Object deleted";
     }
 }
 

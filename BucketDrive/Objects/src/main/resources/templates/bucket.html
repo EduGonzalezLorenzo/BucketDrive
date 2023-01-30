@@ -15,7 +15,7 @@
 <body>
     <nav th:replace="navbarLoged.html :: nav"></nav>
     <article class="container">
-        <h1 th:text="'Location: ' + ${bucket}" class="text-center"></h1>
+        <h1 th:text="'Location: ' + ${path}" class="text-center"></h1>
         <section>
             <form action="#" th:action="@{/objects/{bucketName}/(bucketName=${bucket})}" method="post"
                 enctype="multipart/form-data">
@@ -25,16 +25,18 @@
                 <label for="file">Add file to bucket </label>
                 <input type="file" name="file" id="file">
                 <label for="path">File path: </label>
-                <input type="text" name="path" id="path">
+                <input type="text" name="path" id="path" th:value="${creationPath}">
                 <input type="submit" value="Submit file">
             </form>
         </section>
-
+        <section>
+            <a th:href="@{/objects/{bucket}/{path}(bucket=${path}, path=${object})}"> Go back</a>
+        </section>
         <section>
             <table class="table">
                 <tr th:each="object: ${objects}">
                     <td>
-                        <a th:href="@{/objects/{bucket}/{path}(path=${object} ,bucket=${bucket})}">
+                        <a th:href="@{/objects/{bucket}/{path}(bucket=${path}, path=${object})}">
                             <p th:text="${object}"></p>
                         </a>
                     </td>

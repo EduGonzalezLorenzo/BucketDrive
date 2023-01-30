@@ -63,8 +63,7 @@ public class BucketController {
 
     @PostMapping("/objects/{bucketName}/")
     public String createObject(@PathVariable String bucketName, @RequestParam("file") MultipartFile file, @RequestParam("path") String path, Model model, HttpSession session) throws IOException {
-        //TODO añadir ya hay algo con el mismo path Y nombre de fichero añadirlo como versión de ese objeto en la tabla objectToFile
-        String message = "";
+        String message;
         User user = (User) session.getAttribute("currentUser");
         Bucket bucket = bucketService.getBucketByNameOwner(bucketName, user.getUsername());
         if (Objects.equals(file.getOriginalFilename(), "")) message = "You need to upload a file";
@@ -75,23 +74,26 @@ public class BucketController {
         }
         model.addAttribute("bucket", bucket);
         model.addAttribute("message", message);
-        //Message se pierde al hacer redirect pero si no se hace da error, revisar
-        return ("redirect:/objects/" + bucket.getUri() + "/");
+        if (path.startsWith("/")) path = path.substring(1);
+        if (path.endsWith("/")) path = path.substring(0, path.length()-1);
+        return ("redirect:/objects/" + bucket.getUri() + "/" + path + "/");
     }
 
     @GetMapping("/objects/{bucket}/**")
-    public String setObject(HttpServletRequest request, HttpSession session, Model model) {
-        String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+    public String setObject(@PathVariable String bucket,HttpServletRequest request, HttpSession session, Model model) {
+         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         path = path.substring(1);
         path = path.substring(path.indexOf("/")+1);
-        model.addAttribute("bucket", path.substring(0,path.length()-1));
+        model.addAttribute("bucket", bucket);
 
         if (path.endsWith("/")){
             User user = (User) session.getAttribute("currentUser");
             int bucketID = bucketService.getBucketID(path.split("/")[0], user.getUsername());
             List<String> objects = bucketService.getObjectsFromBucketFromUri(bucketID, path);
             model.addAttribute("objects", objects);
-
+            path = path.substring(0, path.length()-1);
+            model.addAttribute("path", path);
+            model.addAttribute("creationPath", path.substring(path.indexOf("/")) + "/");
             return "bucket";
         }else {
             List<ReferenceObjectToFile> objectVersions = bucketService.getObjectVersions(bucketService.getObjectId(path));
@@ -122,6 +124,13 @@ public class BucketController {
     @PostMapping("/deletebucket/{id}")
     public String deleteBucket(@PathVariable int id, Model model, HttpSession session) {
         model.addAttribute("message", bucketService.deleteBucket(id));
+        model.addAttribute("buckets", bucketService.getBuckets((User) session.getAttribute("currentUser")));
+        return "objects";
+    }
+
+    @GetMapping("/deleteobj/{bucket}/{object}")
+    public String deleteObject(@PathVariable int object, Model model, HttpSession session){
+        model.addAttribute("message", bucketService.deleteObject(object));
         model.addAttribute("buckets", bucketService.getBuckets((User) session.getAttribute("currentUser")));
         return "objects";
     }

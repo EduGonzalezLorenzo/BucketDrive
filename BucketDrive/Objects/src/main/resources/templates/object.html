@@ -16,7 +16,7 @@
     <article class="container">
         <h1 th:text="'File: ' + ${fileName}" class="text-center"></h1>
         <section>
-            <a th:href="@{/deleteobj/{bucket}/{object}(bucket=${bucket} ,object=${objectId})}">
+            <a th:href="@{/deleteobj/{bucket}/{object}(bucket=${bucket},object=${objectId})}">
                 Delete object (all versions)
             </a>
             <table class="text-center table table-bordered">
