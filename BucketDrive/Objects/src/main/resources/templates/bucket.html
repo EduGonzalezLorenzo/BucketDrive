@@ -31,7 +31,7 @@
         </section>
 
         <section>
-            <table>
+            <table class="table">
                 <tr th:each="object: ${objects}">
                     <td>
                         <a th:href="@{/objects/{bucket}/{path}(path=${object} ,bucket=${bucket})}">

@@ -1,15 +1,16 @@
 package edu.servidor.objects.Objects.controllers;
 
 import edu.servidor.objects.Objects.forms.BucketForm;
-import edu.servidor.objects.Objects.models.Bucket;
-import edu.servidor.objects.Objects.models.ObjectFile;
-import edu.servidor.objects.Objects.models.ReferenceObjectToFile;
-import edu.servidor.objects.Objects.models.User;
+import edu.servidor.objects.Objects.models.*;
 import edu.servidor.objects.Objects.services.BucketService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -83,13 +84,12 @@ public class BucketController {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         path = path.substring(1);
         path = path.substring(path.indexOf("/")+1);
+        model.addAttribute("bucket", path.substring(0,path.length()-1));
 
         if (path.endsWith("/")){
             User user = (User) session.getAttribute("currentUser");
             int bucketID = bucketService.getBucketID(path.split("/")[0], user.getUsername());
             List<String> objects = bucketService.getObjectsFromBucketFromUri(bucketID, path);
-
-            model.addAttribute("bucket", path.substring(0,path.length()-1));
             model.addAttribute("objects", objects);
 
             return "bucket";
@@ -97,23 +97,27 @@ public class BucketController {
             List<ReferenceObjectToFile> objectVersions = bucketService.getObjectVersions(bucketService.getObjectId(path));
             String[] splitPath = path.split("/");
             model.addAttribute("fileName", splitPath[splitPath.length-1]);
+            model.addAttribute("objectId", objectVersions.get(0).getObjectId());
             model.addAttribute("versions", objectVersions);
 
-            return "object";//template de opciones de un objeto
+            return "object";
         }
     }
 
-//    @GetMapping("/download/{objid}/{fid}")
-//    public ResponseEntity<byte[]> download(@PathVariable int objid, @PathVariable int fid) {
-//        ObjectFile objectFile = new ObjectFile(); //TODO obtener el objeto Y versión solicitadas por le usuario
-//        byte[] fileContent = objectFile.get;
-//        String name = objectFile.getUri(); //TODO hacer service que extraiga el nombre del archivo, no hay que devolver bucket/carpeta/archivo.txt hay que devolver archivo.txt
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.valueOf(objectFile.getContentType()));
-//        headers.setContentLength(fileContent.length);
-//        headers.set("Content-disposition", "attachment;filename=" + name);
-//        return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
-//    }
+    @GetMapping("/download/{objid}/{fid}")
+    public ResponseEntity<byte[]> download(@PathVariable int objid, @PathVariable int fid) {
+        ReferenceObjectToFile reference = bucketService.getObjectFromVersion(objid, fid);
+        FileData fileData = bucketService.getFileById(reference.getFileId());
+        ObjectFile objectFile = bucketService.getObjectFromId(objid);
+
+        byte[] fileContent = fileData.getBody();
+        String name = bucketService.getFileName(objectFile);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.valueOf(objectFile.getContentType()));
+        headers.setContentLength(fileContent.length);
+        headers.set("Content-disposition", "attachment;filename=" + name);
+        return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
+    }
 
     @PostMapping("/deletebucket/{id}")
     public String deleteBucket(@PathVariable int id, Model model, HttpSession session) {

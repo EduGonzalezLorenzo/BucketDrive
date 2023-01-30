@@ -17,7 +17,7 @@ public class ReferenceObjectToFileDaoMySql implements ReferenceObjectToFileDao {
     JdbcTemplate jdbcTemplate;
 
     @Override
-    public int insertRow(int objectId, int fileId, Timestamp currentTime) {
+    public int insertRowForNewObject(int objectId, int fileId, Timestamp currentTime) {
         return jdbcTemplate.update("INSERT INTO objectToFile (objectId, fileId, uploadDate, versionId) values (?, ?, ?, ?)"
                 , objectId, fileId, currentTime, 1);
     }
@@ -28,7 +28,7 @@ public class ReferenceObjectToFileDaoMySql implements ReferenceObjectToFileDao {
     }
 
     @Override
-    public List<ReferenceObjectToFile> getRowFromObjectId(int objectId) {
+    public List<ReferenceObjectToFile> getRowsFromObjectId(int objectId) {
         return jdbcTemplate.query("SELECT * FROM ObjectToFile WHERE objectId = ?", new BeanPropertyRowMapper<>(ReferenceObjectToFile.class), objectId);
     }
 
@@ -36,6 +36,17 @@ public class ReferenceObjectToFileDaoMySql implements ReferenceObjectToFileDao {
     public List<ReferenceObjectToFile> getRowFromFileId(int fileId) {
         return jdbcTemplate.query("SELECT * FROM ObjectToFile WHERE fileId = ?", new BeanPropertyRowMapper<>(ReferenceObjectToFile.class), fileId);
 
+    }
+
+    @Override
+    public int insertRowForUpdate(int objectId, int fileId, Timestamp currentTime, int versionID) {
+        return jdbcTemplate.update("INSERT INTO objectToFile (objectId, fileId, uploadDate, versionId) values (?, ?, ?, ?)"
+                , objectId, fileId, currentTime, versionID);
+    }
+
+    @Override
+    public List<ReferenceObjectToFile> getRowFromObjectAndVersion(int objectId, int versionId) {
+        return jdbcTemplate.query("SELECT * FROM objectToFile WHERE objectId = ? AND versionId = ?", new BeanPropertyRowMapper<>(ReferenceObjectToFile.class), objectId, versionId);
     }
 
 

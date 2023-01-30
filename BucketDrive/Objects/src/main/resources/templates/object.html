@@ -16,16 +16,30 @@
     <article class="container">
         <h1 th:text="'File: ' + ${fileName}" class="text-center"></h1>
         <section>
-            <table>
+            <a th:href="@{/deleteobj/{bucket}/{object}(bucket=${bucket} ,object=${objectId})}">
+                Delete object (all versions)
+            </a>
+            <table class="text-center table table-bordered">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Version</th>
+                    <th scope="col">Upload date</th>
+                    <th scope="col">Download this version</th>
+                </tr>
                 <tr th:each="version: ${versions}">
                     <td>
-                        <!-- <a th:href="@{/download/{objid}/{fid}(objid=${version.id} ,fid=${version.version})}"> -->
-                        <a href="">
-                            <p th:text="${fileName}"></p>
-                        </a>
+                        <p th:text="${fileName}"></p>
                     </td>
                     <td>
                         <p th:text="${version.versionId}"></p>
+                    </td>
+                    <td>
+                        <p th:text="${version.uploadDate}"></p>
+                    </td>
+                    <td>
+                        <a th:href="@{/download/{objid}/{fid}(objid=${version.objectId} ,fid=${version.versionId})}">
+                            Download
+                        </a>
                     </td>
                 </tr>
             </table>

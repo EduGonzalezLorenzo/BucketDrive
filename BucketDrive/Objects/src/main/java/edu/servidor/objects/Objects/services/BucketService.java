@@ -32,7 +32,7 @@ public class BucketService {
     ReferenceObjectToFileDao referenceObjectToFileDao;
 
     public List<ReferenceObjectToFile> getObjectVersions(int objectId) {
-        return referenceObjectToFileDao.getRowFromObjectId(objectId);
+        return referenceObjectToFileDao.getRowsFromObjectId(objectId);
     }
 
     public String createBucket(User currentUser, String uri) {
@@ -53,19 +53,21 @@ public class BucketService {
         List<ObjectFile> objects = objectDao.getObjectsFromBucket(bucketId);
         for (ObjectFile objectFile : objects) {
             int objectId = objectFile.getId();
-            List<ReferenceObjectToFile> referenceObjectToFile = referenceObjectToFileDao.getRowFromObjectId(objectId);
-            ReferenceObjectToFile fileToObjectRow = referenceObjectToFile.get(0);
+            List<ReferenceObjectToFile> referenceObjectToFile = referenceObjectToFileDao.getRowsFromObjectId(objectId);
             referenceObjectToFileDao.deleteFromObjectId(objectId);
             objectDao.deleteFromId(objectId);
-            checkFilesToDelete(fileToObjectRow.getFileId());
+            checkFilesToDelete(referenceObjectToFile);
         }
         return bucketDao.deleteBucket(bucketId) == 0 ? "Unable to delete bucket" : "Bucket deleted";
     }
 
-    private void checkFilesToDelete(int fileId) {
-        List<FileData> filesToObject = fileDao.getFileById(fileId);
-        if (filesToObject.get(0).getRef() == 1) fileDao.removeFile(fileId);
-        else fileDao.modifyRefCounter(fileId, filesToObject.get(0).getRef() - 1);
+    private void checkFilesToDelete(List<ReferenceObjectToFile> references) {
+        for (ReferenceObjectToFile reference : references) {
+            int fileId = reference.getFileId();
+            List<FileData> filesToObject = fileDao.getFileById(fileId);
+            if (filesToObject.get(0).getRef() == 1) fileDao.removeFile(fileId);
+            else fileDao.modifyRefCounter(fileId, filesToObject.get(0).getRef() - 1);
+        }
     }
 
     public int getBucketID(String name, String username) {
@@ -128,13 +130,22 @@ public class BucketService {
         files = fileDao.getFileByHash(bodyHash);
         int fileId = files.get(0).getId();
 
-        if (objectDao.createObject(objectFile) == 0) return "Error creating object";
+        List<ObjectFile> objects = objectDao.getObjectsFromUri(uri);
+        if (objects.size() == 0) {
+            objectDao.createObject(objectFile);
+            objects = objectDao.getObjectsFromUri(uri);
+            referenceObjectToFileDao.insertRowForNewObject(objects.get(0).getId(), fileId, currentTime);
+            return "Object created successfully";
+        } else {
+            int versionId = getVersionId(objects.get(0).getId());
+            referenceObjectToFileDao.insertRowForUpdate(objects.get(0).getId(), fileId, currentTime, versionId);
+            return "Object updated successfully";
+        }
+    }
 
-        objectFile = objectDao.getObjectsFromUri(uri).get(0);
-
-        referenceObjectToFileDao.insertRow(objectFile.getId(), fileId, currentTime);
-
-        return "Object created successfully";
+    private int getVersionId(int objectId) {
+        List<ReferenceObjectToFile> referenceObjectToFiles = referenceObjectToFileDao.getRowsFromObjectId(objectId);
+        return referenceObjectToFiles.size() + 1;
     }
 
     private String generateUri(Bucket bucket, String path, String fileName) {
@@ -167,6 +178,23 @@ public class BucketService {
 
     public int getObjectId(String path) {
         return objectDao.getObjectsFromUri(path).get(0).getId();
+    }
+
+    public ReferenceObjectToFile getObjectFromVersion(int objectId, int versionId) {
+        return referenceObjectToFileDao.getRowFromObjectAndVersion(objectId, versionId).get(0);
+    }
+
+    public FileData getFileById(int fileId) {
+        return fileDao.getFileById(fileId).get(0);
+    }
+
+    public ObjectFile getObjectFromId(int objectId) {
+        return objectDao.getObjectFromId(objectId).get(0);
+    }
+
+    public String getFileName(ObjectFile objectFile) {
+        String[] objectFileUriSplit = objectFile.getUri().split("/");
+        return objectFileUriSplit[objectFileUriSplit.length - 1];
     }
 }
 

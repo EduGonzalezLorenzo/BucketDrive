@@ -28,7 +28,7 @@
             </form>
         </section>
         <section>
-            <table>
+            <table class="text-center table">
                 <tr th:each="bucket: ${buckets}">
                     <td>
                         <a th:href="@{/objects/{name}/(name=${bucket.uri})}">
