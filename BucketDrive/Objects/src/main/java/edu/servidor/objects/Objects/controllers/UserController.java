@@ -39,7 +39,7 @@ public class UserController {
         User user = userService.login(userForm.getUsername(), userForm.getPassword());
         if (user != null) {
             session.setAttribute("currentUser", user);
-            return "redirect:/objects";
+            return "redirect:/objects/";
         }
         model.addAttribute("message", "Wrong user or password");
         return "login";

@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,15 +31,15 @@ public class BucketController {
     @Autowired
     BucketService bucketService;
 
-    @GetMapping("/objects")
-    public String objects(HttpSession session, Model model) {
+    @GetMapping("/objects/")
+    public String showBuckets(HttpSession session, Model model) {
         User user = (User) session.getAttribute("currentUser");
         model.addAttribute("buckets", bucketService.getBuckets(user));
         return "objects";
     }
 
     @PostMapping("/objects")
-    public String objects(@Valid BucketForm bucketForm, BindingResult bindingResult, Model model, HttpSession session) {
+    public String createBucket(@Valid BucketForm bucketForm, BindingResult bindingResult, Model model, HttpSession session) {
         String message = "";
         User user = (User) session.getAttribute("currentUser");
         if (bindingResult.hasErrors()) {
@@ -54,6 +55,10 @@ public class BucketController {
     @GetMapping("/objects/{path}/")
     public String showBucketContent(@PathVariable String path, HttpSession session, Model model) {
         User user = (User) session.getAttribute("currentUser");
+        if (!bucketService.checkOwner(path, user)){
+            model.addAttribute("message", "You are not the owner of this bucket");
+            return "objects";
+        }
         int bucketID = bucketService.getBucketID(path, user.getUsername());
         List<String> objects = bucketService.getObjectsFromBucketFromUri(bucketID, path);
         model.addAttribute("bucket", path);
@@ -75,32 +80,53 @@ public class BucketController {
         model.addAttribute("bucket", bucket);
         model.addAttribute("message", message);
         if (path.startsWith("/")) path = path.substring(1);
-        if (path.endsWith("/")) path = path.substring(0, path.length()-1);
-        return ("redirect:/objects/" + bucket.getUri() + "/" + path + "/");
+        if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
+        String url = "redirect:/objects/" + bucket.getUri() + "/" + path;
+        return url.endsWith("/") ? url : url + "/";
     }
 
     @GetMapping("/objects/{bucket}/**")
-    public String setObject(@PathVariable String bucket,HttpServletRequest request, HttpSession session, Model model) {
-         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+    public String navigateAmongObjects(@PathVariable String bucket, HttpServletRequest request, HttpSession session, Model model) {
+        String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         path = path.substring(1);
-        path = path.substring(path.indexOf("/")+1);
+        path = path.substring(path.indexOf("/") + 1);
         model.addAttribute("bucket", bucket);
+        User user = (User) session.getAttribute("currentUser");
 
-        if (path.endsWith("/")){
-            User user = (User) session.getAttribute("currentUser");
+        if (path.endsWith("/")) {
             int bucketID = bucketService.getBucketID(path.split("/")[0], user.getUsername());
             List<String> objects = bucketService.getObjectsFromBucketFromUri(bucketID, path);
             model.addAttribute("objects", objects);
-            path = path.substring(0, path.length()-1);
+            path = path.substring(0, path.length() - 1);
             model.addAttribute("path", path);
             model.addAttribute("creationPath", path.substring(path.indexOf("/")) + "/");
+            String[] backPathArray = path.split("/");
+            StringBuilder backPath = new StringBuilder();
+            for (int i = 0; i < backPathArray.length - 1; i++) {
+                backPath.append(backPathArray[i]).append("/");
+            }
+            model.addAttribute("backPath", backPath);
+
             return "bucket";
-        }else {
+        } else {
+
             List<ReferenceObjectToFile> objectVersions = bucketService.getObjectVersions(bucketService.getObjectId(path));
             String[] splitPath = path.split("/");
-            model.addAttribute("fileName", splitPath[splitPath.length-1]);
-            model.addAttribute("objectId", objectVersions.get(0).getObjectId());
+            int objectId = objectVersions.get(0).getObjectId();
+            if (!bucketService.checkOwner(bucket, user)){
+                model.addAttribute("message", "You are not the owner of this bucket");
+                return "objects";
+            }
+            model.addAttribute("fileName", splitPath[splitPath.length - 1]);
+            model.addAttribute("objectId", objectId);
             model.addAttribute("versions", objectVersions);
+
+            String[] backPathArray = path.split("/");
+            StringBuilder backPath = new StringBuilder();
+            for (int i = 0; i < backPathArray.length - 1; i++) {
+                backPath.append(backPathArray[i]).append("/");
+            }
+            model.addAttribute("backPath", backPath);
 
             return "object";
         }
@@ -129,7 +155,7 @@ public class BucketController {
     }
 
     @GetMapping("/deleteobj/{bucket}/{object}")
-    public String deleteObject(@PathVariable int object, Model model, HttpSession session){
+    public String deleteObject(@PathVariable int object, Model model, HttpSession session) {
         model.addAttribute("message", bucketService.deleteObject(object));
         model.addAttribute("buckets", bucketService.getBuckets((User) session.getAttribute("currentUser")));
         return "objects";

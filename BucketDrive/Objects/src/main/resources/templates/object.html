@@ -16,6 +16,9 @@
     <article class="container">
         <h1 th:text="'File: ' + ${fileName}" class="text-center"></h1>
         <section>
+            <a th:href="@{/objects/{path}(path=${backPath})}"> Go back</a>
+        </section>
+        <section>
             <a th:href="@{/deleteobj/{bucket}/{object}(bucket=${bucket},object=${objectId})}">
                 Delete object (all versions)
             </a>

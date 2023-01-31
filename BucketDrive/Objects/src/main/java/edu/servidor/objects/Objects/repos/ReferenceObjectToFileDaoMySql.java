@@ -33,12 +33,6 @@ public class ReferenceObjectToFileDaoMySql implements ReferenceObjectToFileDao {
     }
 
     @Override
-    public List<ReferenceObjectToFile> getRowFromFileId(int fileId) {
-        return jdbcTemplate.query("SELECT * FROM ObjectToFile WHERE fileId = ?", new BeanPropertyRowMapper<>(ReferenceObjectToFile.class), fileId);
-
-    }
-
-    @Override
     public int insertRowForUpdate(int objectId, int fileId, Timestamp currentTime, int versionID) {
         return jdbcTemplate.update("INSERT INTO objectToFile (objectId, fileId, uploadDate, versionId) values (?, ?, ?, ?)"
                 , objectId, fileId, currentTime, versionID);

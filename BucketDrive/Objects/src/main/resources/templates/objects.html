@@ -19,7 +19,7 @@
         <section>
             <form action="/objects" method="post">
                 <h2>Create new bucket</h2>
-                <div class="container" th:if="${message != null}">
+                <div class="container bg-danger" th:if="${message != null}">
                     <p th:text="${message}"></p>
                 </div>
                 <label for="uri"> Bucket name. No special chars allowed ("-" and "_" accepted). Max 20 chars:</label>

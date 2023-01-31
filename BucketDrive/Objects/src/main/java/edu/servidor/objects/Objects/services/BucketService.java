@@ -196,6 +196,11 @@ public class BucketService {
 
         return deletedObjects == 0 ? "Unable to delete object" : "Object deleted";
     }
+
+    public boolean checkOwner(String bucketName, User user) {
+        Bucket bucket = bucketDao.getBucketFromUri(bucketName).get(0);
+        return bucket.getOwner().equals(user.getUsername());
+    }
 }
 
 

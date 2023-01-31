@@ -13,9 +13,6 @@ public interface ReferenceObjectToFileDao {
 
     List<ReferenceObjectToFile> getRowsFromObjectId(int objectId);
 
-
-    List<ReferenceObjectToFile> getRowFromFileId(int fileId);
-
     int insertRowForUpdate(int objectId, int fileId, Timestamp currentTime, int versionID);
 
     List<ReferenceObjectToFile> getRowFromObjectAndVersion(int objectId, int versionId);
