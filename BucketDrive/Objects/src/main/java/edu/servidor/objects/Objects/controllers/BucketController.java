@@ -92,7 +92,10 @@ public class BucketController {
         path = path.substring(path.indexOf("/") + 1);
         model.addAttribute("bucket", bucket);
         User user = (User) session.getAttribute("currentUser");
-
+        if (!bucketService.checkOwner(bucket, user)){
+            model.addAttribute("message", "You are not the owner of this bucket");
+            return "objects";
+        }
         if (path.endsWith("/")) {
             int bucketID = bucketService.getBucketID(path.split("/")[0], user.getUsername());
             List<String> objects = bucketService.getObjectsFromBucketFromUri(bucketID, path);
@@ -109,14 +112,9 @@ public class BucketController {
 
             return "bucket";
         } else {
-
             List<ReferenceObjectToFile> objectVersions = bucketService.getObjectVersions(bucketService.getObjectId(path));
             String[] splitPath = path.split("/");
             int objectId = objectVersions.get(0).getObjectId();
-            if (!bucketService.checkOwner(bucket, user)){
-                model.addAttribute("message", "You are not the owner of this bucket");
-                return "objects";
-            }
             model.addAttribute("fileName", splitPath[splitPath.length - 1]);
             model.addAttribute("objectId", objectId);
             model.addAttribute("versions", objectVersions);
