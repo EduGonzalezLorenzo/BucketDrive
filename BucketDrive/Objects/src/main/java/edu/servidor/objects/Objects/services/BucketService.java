@@ -118,6 +118,7 @@ public class BucketService {
             FileData fileData = files.get(0);
             fileDao.modifyRefCounter(fileData.getId(), fileData.getRef() + 1);
         }
+        //Creado o no un nuevo fichero se obtiene la id del fichero asignado al objeto
         files = fileDao.getFileByHash(bodyHash);
         int fileId = files.get(0).getId();
 
