@@ -13,8 +13,8 @@
 
 <body>
     <nav th:replace="navbarLoged.html :: nav"></nav>
+    <h1 th:text="'File: ' + ${fileName}" class="text-center"></h1>
     <article class="container">
-        <h1 th:text="'File: ' + ${fileName}" class="text-center"></h1>
         <section>
             <a th:href="@{/objects/{path}(path=${backPath})}"> Go back</a>
         </section>
@@ -22,35 +22,33 @@
             <a th:href="@{/deleteobj/{bucket}/{object}(bucket=${bucket},object=${objectId})}">
                 Delete object (all versions)
             </a>
-            <table class="text-center table table-bordered">
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Version</th>
-                    <th scope="col">Upload date</th>
-                    <th scope="col">Download this version</th>
-                </tr>
-                <tr th:each="version: ${versions}">
-                    <td>
-                        <p th:text="${fileName}"></p>
-                    </td>
-                    <td>
-                        <p th:text="${version.versionId}"></p>
-                    </td>
-                    <td>
-                        <p th:text="${version.uploadDate}"></p>
-                    </td>
-                    <td>
-                        <a th:href="@{/download/{objid}/{fid}(objid=${version.objectId} ,fid=${version.versionId})}">
-                            Download
-                        </a>
-                    </td>
-                </tr>
-            </table>
-        </section>
-
     </article>
-
-
+    <article class="container">
+        <table class="text-center table table-bordered">
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Version</th>
+                <th scope="col">Upload date</th>
+                <th scope="col">Download this version</th>
+            </tr>
+            <tr th:each="version: ${versions}">
+                <td>
+                    <p th:text="${fileName}"></p>
+                </td>
+                <td>
+                    <p th:text="${version.versionId}"></p>
+                </td>
+                <td>
+                    <p th:text="${version.uploadDate}"></p>
+                </td>
+                <td>
+                    <a th:href="@{/download/{objid}/{fid}(objid=${version.objectId} ,fid=${version.versionId})}">
+                        Download
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </article>
 </body>
 
 </html>

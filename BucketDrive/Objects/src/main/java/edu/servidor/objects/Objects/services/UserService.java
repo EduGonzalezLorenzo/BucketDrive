@@ -1,6 +1,8 @@
 package edu.servidor.objects.Objects.services;
 
+import edu.servidor.objects.Objects.models.Bucket;
 import edu.servidor.objects.Objects.models.User;
+import edu.servidor.objects.Objects.repos.BucketDao;
 import edu.servidor.objects.Objects.repos.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,6 +16,9 @@ import static edu.servidor.objects.Objects.utils.GetHash.getHashSHA256;
 public class UserService {
     @Autowired
     UserDao userDao;
+
+    @Autowired
+    BucketService bucketService;
 
     public String addUser(String username, String name, String password) throws NoSuchAlgorithmException {
         if (userDao.getUsersByUsername(username).size() != 0) return "User name already exists";
@@ -36,12 +41,26 @@ public class UserService {
     public String modifyUser(String name, String password, String username) throws NoSuchAlgorithmException {
         if (name != null) {
             return userDao.modifyName(name, username) == 0 ? "Unable to change name" : "Name changed";
-        } else {
+        }
+        if (password != null) {
             return userDao.modifyPassword(getHashSHA256(password), username) == 0 ? "Unable to change password" : "Password changed";
+        } else {
+            return deleteUser(username);
         }
     }
 
-    public User getUserById(String username) {
-        return userDao.getUsersByUsername(username).get(0);
+    private String deleteUser(String username) {
+        User user = getUserByUserName(username);
+        List<Bucket> userBuckets = bucketService.getBuckets(user);
+        for (Bucket bucket : userBuckets) {
+            bucketService.deleteBucket(bucket.getId());
+        }
+        return userDao.deleteUserByUserName(username) == 0 ? "Unable to delete user" : "User Deleted";
+    }
+
+    public User getUserByUserName(String username) {
+        List<User> users = userDao.getUsersByUsername(username);
+        if (users.size()==0) return null;
+        return users.get(0);
     }
 }

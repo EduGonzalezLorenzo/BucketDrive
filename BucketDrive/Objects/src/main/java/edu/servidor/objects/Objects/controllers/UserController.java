@@ -67,6 +67,7 @@ public class UserController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.setAttribute("currentUser", null);
+        session.setAttribute("message", null);
         return "index";
     }
 
@@ -84,7 +85,9 @@ public class UserController {
             message = "Data input error";
         } else {
             message = userService.modifyUser(userForm.getName(), userForm.getPassword(), user.getUsername());
-            session.setAttribute("currentUser", userService.getUserById(user.getUsername()));
+            user = userService.getUserByUserName(user.getUsername());
+            if (user == null) return "redirect:/logout";
+            session.setAttribute("currentUser", user);
         }
         model.addAttribute("currentUser", session.getAttribute("currentUser"));
         model.addAttribute("message", message);

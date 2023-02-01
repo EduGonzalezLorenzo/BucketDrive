@@ -32,4 +32,9 @@ public class UserDaoMySql implements UserDao {
     public List<User> getUsersByUsername(String username) {
         return jdbcTemplate.query("SELECT * from user WHERE username = ?", new BeanPropertyRowMapper<>(User.class), username);
     }
+
+    @Override
+    public int deleteUserByUserName(String username) {
+        return jdbcTemplate.update("DELETE FROM user WHERE username = ?" , username);
+    }
 }

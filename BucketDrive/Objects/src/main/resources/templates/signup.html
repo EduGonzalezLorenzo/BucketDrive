@@ -20,41 +20,46 @@
         <section th:if="${message != null}">
             <p th:text="${message}"></p>
         </section>
-        <form action="/signup" method="post">
-            <div class="row mb-3">
-                <label for="username" class="col-sm-2 col-form-label"> User name (between 3 and 10 characters):</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="username" id="username" minlength="3" maxlength="10">
+        <section>
+            <form action="/signup" method="post">
+                <div class="row mb-3">
+                    <label for="username" class="col-sm-2 col-form-label"> User name (between 3 and 10
+                        characters):</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="username" id="username" minlength="3"
+                            maxlength="10">
+                    </div>
                 </div>
-            </div>
 
-            <div class="row mb-3">
-                <label for="name" class="col-sm-2 col-form-label">Real name (between 3 and 30 characters):</label>
-                <div class="col-sm-10">
-                    <input type="text" name="name" class="form-control" id="name" minlength="3" maxlength="30">
+                <div class="row mb-3">
+                    <label for="name" class="col-sm-2 col-form-label">Real name (between 3 and 30 characters):</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="name" class="form-control" id="name" minlength="3" maxlength="30">
+                    </div>
                 </div>
-            </div>
 
-            <div class="row mb-3">
-                <label for="password" class="col-sm-2 col-form-label">Insert password (between 3 and 10
-                    characters):</label>
-                <div class="col-sm-10">
-                    <input type="password" name="password" class="form-control" id="password" minlength="3"
-                        maxlength="10" onkeyup='checkPass();'>
-                    <input type="checkbox" onclick="showPass1()">Show Password
+                <div class="row mb-3">
+                    <label for="password" class="col-sm-2 col-form-label">Insert password (between 3 and 10
+                        characters):</label>
+                    <div class="col-sm-10">
+                        <input type="password" name="password" class="form-control" id="password" minlength="3"
+                            maxlength="10" onkeyup='checkPass();'>
+                        <input type="checkbox" onclick="showPass1()">Show Password
+                    </div>
                 </div>
-            </div>
 
-            <div class="row mb-3">
-                <label for="passwordRepeat" class="col-sm-2 col-form-label">Repeat password:</label>
-                <div class="col-sm-10">
-                    <input type="password" name="passwordRepeat" class="form-control" id="passwordRepeat" minlength="3"
-                        maxlength="10" onkeyup='checkPass();'>
-                    <input type="checkbox" onclick="showPass2()">Show Password
+                <div class="row mb-3">
+                    <label for="passwordRepeat" class="col-sm-2 col-form-label">Repeat password:</label>
+                    <div class="col-sm-10">
+                        <input type="password" name="passwordRepeat" class="form-control" id="passwordRepeat"
+                            minlength="3" maxlength="10" onkeyup='checkPass();'>
+                        <input type="checkbox" onclick="showPass2()">Show Password
+                    </div>
                 </div>
-            </div>
-            <input id="signUp" class="btn btn-primary" type="submit" value="Sign up!" disabled>
-        </form>
+                
+                <input id="signUp" class="btn btn-primary" type="submit" value="Sign up!" disabled>
+            </form>
+        </section>
     </article>
     <script src="/js/script.js"></script>
 </body>

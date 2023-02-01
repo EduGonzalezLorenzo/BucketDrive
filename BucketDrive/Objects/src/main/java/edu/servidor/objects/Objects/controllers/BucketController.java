@@ -56,12 +56,14 @@ public class BucketController {
     @GetMapping("/objects/{path}/")
     public String showBucketContent(@PathVariable String path, HttpSession session, Model model) {
         User user = (User) session.getAttribute("currentUser");
-        if (!bucketService.checkOwner(path, user)){
+        if (!bucketService.checkOwner(path, user)) {
             model.addAttribute("message", "You are not the owner of this bucket");
             return "objects";
         }
         int bucketID = bucketService.getBucketID(path, user.getUsername());
         List<String> objects = bucketService.getObjectsFromBucketFromUri(bucketID, path);
+        model.addAttribute("message", session.getAttribute("message"));
+        session.setAttribute("message", null);
         model.addAttribute("bucket", path);
         model.addAttribute("objects", objects);
         return "bucket";
@@ -78,8 +80,7 @@ public class BucketController {
             List<ObjectFile> objects = bucketService.getObjectsFromBucket(bucket.getId());
             model.addAttribute("objects", objects);
         }
-        model.addAttribute("bucket", bucket);
-        model.addAttribute("message", message);
+        session.setAttribute("message", message);
         if (path.startsWith("/")) path = path.substring(1);
         if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
         String url = "redirect:/objects/" + bucket.getUri() + "/" + path;
@@ -91,9 +92,13 @@ public class BucketController {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         path = path.substring(1);
         path = path.substring(path.indexOf("/") + 1);
-        model.addAttribute("bucket", bucket);
         User user = (User) session.getAttribute("currentUser");
-        if (!bucketService.checkOwner(bucket, user)){
+
+        model.addAttribute("message", session.getAttribute("message"));
+        session.setAttribute("message", null);
+        model.addAttribute("bucket", bucket);
+
+        if (!bucketService.checkOwner(bucket, user)) {
             model.addAttribute("message", "You are not the owner of this bucket");
             return "objects";
         }
