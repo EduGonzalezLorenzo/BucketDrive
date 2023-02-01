@@ -5,9 +5,9 @@ import edu.servidor.objects.Objects.models.FileData;
 import java.util.List;
 
 public interface FileDao {
-    List<FileData> getFileByHash(int hash);
+    List<FileData> getFileByHash(String hash);
 
-    int createFile(byte[] body);
+    int createFile(byte[] body, String bodyHash);
 
     int removeFile(int fileId);
 

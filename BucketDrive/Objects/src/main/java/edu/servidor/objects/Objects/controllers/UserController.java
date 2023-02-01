@@ -13,6 +13,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.security.NoSuchAlgorithmException;
+
 @Controller
 public class UserController {
     @Autowired
@@ -31,7 +33,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(HttpSession session, @Valid UserForm userForm, BindingResult bindingResult, Model model) {
+    public String login(HttpSession session, @Valid UserForm userForm, BindingResult bindingResult, Model model) throws NoSuchAlgorithmException {
         if (bindingResult.hasErrors()) {
             model.addAttribute("message", "Data input error");
             return "login";
@@ -51,7 +53,7 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public String signUp(@Valid UserForm userForm, BindingResult bindingResult, Model model) {
+    public String signUp(@Valid UserForm userForm, BindingResult bindingResult, Model model) throws NoSuchAlgorithmException {
         String message = "";
         if (bindingResult.hasErrors()) {
             message = "Data input error";
@@ -75,7 +77,7 @@ public class UserController {
     }
 
     @PostMapping("/settings")
-    public String settings(@Valid UserForm userForm, BindingResult bindingResult, Model model, HttpSession session) {
+    public String settings(@Valid UserForm userForm, BindingResult bindingResult, Model model, HttpSession session) throws NoSuchAlgorithmException {
         String message = "";
         User user = (User) session.getAttribute("currentUser");
         if (bindingResult.hasErrors()) {

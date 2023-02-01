@@ -24,7 +24,7 @@ public class UserDaoMySql implements UserDao {
     }
 
     @Override
-    public int modifyPassword(int password, String username) {
+    public int modifyPassword(String password, String username) {
         return jdbcTemplate.update("UPDATE user SET password=? WHERE username = ?", password, username);
     }
 

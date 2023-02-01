@@ -10,11 +10,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import static edu.servidor.objects.Objects.utils.GetHash.getHashSHA256;
 
 @Component
 public class BucketService {
@@ -106,14 +109,14 @@ public class BucketService {
         return uri;
     }
 
-    public String createObject(MultipartFile file, String path, Bucket bucket, User user) throws IOException {
+    public String createObject(MultipartFile file, String path, Bucket bucket, User user) throws IOException, NoSuchAlgorithmException {
         Timestamp currentTime = new Timestamp(new Date().getTime());
         String uri = generateUri(bucket, path, file.getOriginalFilename());
         ObjectFile objectFile = generateObject(currentTime, bucket, user, file, uri);
         byte[] body = file.getBytes();
-        int bodyHash = Arrays.hashCode(body);
+        String bodyHash = getHashSHA256(Arrays.toString(body));
         List<FileData> files = fileDao.getFileByHash(bodyHash);
-        if (files.size() == 0) fileDao.createFile(body);
+        if (files.size() == 0) fileDao.createFile(body, bodyHash);
         else {
             FileData fileData = files.get(0);
             fileDao.modifyRefCounter(fileData.getId(), fileData.getRef() + 1);
@@ -199,7 +202,9 @@ public class BucketService {
     }
 
     public boolean checkOwner(String bucketName, User user) {
-        Bucket bucket = bucketDao.getBucketFromUri(bucketName).get(0);
+        List<Bucket> buckets = bucketDao.getBucketFromUri(bucketName);
+        if (buckets.size()==0) return false;
+        Bucket bucket = buckets.get(0);
         return bucket.getOwner().equals(user.getUsername());
     }
 }

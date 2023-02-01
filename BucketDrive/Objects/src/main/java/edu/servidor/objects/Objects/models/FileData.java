@@ -3,7 +3,7 @@ package edu.servidor.objects.Objects.models;
 public class FileData {
     private int id;
     private byte[] body;
-    private int hash;
+    private String hash;
     private int ref;
 
     public int getId() {
@@ -22,11 +22,11 @@ public class FileData {
         this.body = body;
     }
 
-    public int getHash() {
+    public String getHash() {
         return hash;
     }
 
-    public void setHash(int hash) {
+    public void setHash(String hash) {
         this.hash = hash;
     }
 

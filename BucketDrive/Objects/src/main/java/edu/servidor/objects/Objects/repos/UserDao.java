@@ -9,7 +9,7 @@ public interface UserDao {
 
     int modifyName(String name, String username);
 
-    int modifyPassword(int password, String username);
+    int modifyPassword(String password, String username);
 
     List<User> getUsersByUsername(String username);
 

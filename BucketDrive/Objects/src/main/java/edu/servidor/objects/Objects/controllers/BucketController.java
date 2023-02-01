@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -67,7 +68,7 @@ public class BucketController {
     }
 
     @PostMapping("/objects/{bucketName}/")
-    public String createObject(@PathVariable String bucketName, @RequestParam("file") MultipartFile file, @RequestParam("path") String path, Model model, HttpSession session) throws IOException {
+    public String createObject(@PathVariable String bucketName, @RequestParam("file") MultipartFile file, @RequestParam("path") String path, Model model, HttpSession session) throws IOException, NoSuchAlgorithmException {
         String message;
         User user = (User) session.getAttribute("currentUser");
         Bucket bucket = bucketService.getBucketByNameOwner(bucketName, user.getUsername());
