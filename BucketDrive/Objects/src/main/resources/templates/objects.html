@@ -37,7 +37,7 @@
                     </a>
                 </td>
                 <td>
-                    <form action="#" th:action="@{/deletebucket/{id}(id=${bucket.id})}" method="post">
+                    <form action="#" th:action="@{/deletebucket/{id}(id=${bucket.id})}" method="post" onsubmit="return confirm('Do you really want to delete this bucket?');">
                         <input type="submit" value="Delete this bucket">
                     </form>
                 </td>

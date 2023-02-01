@@ -51,7 +51,7 @@
     </article>
 
     <article class="text-center">
-        <form action="/settings" method="post">
+        <form action="/settings" method="post" onsubmit="return confirm('Do you really want to DELETE your user? This is no reversible!');">
             <input type="hidden" name="username" id="username" th:field="*{currentUser.username}">
             <input class="btn btn-danger" type="submit" value="Delete acount">
         </form>

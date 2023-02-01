@@ -19,7 +19,8 @@
             <a th:href="@{/objects/{path}(path=${backPath})}"> Go back</a>
         </section>
         <section>
-            <a th:href="@{/deleteobj/{bucket}/{object}(bucket=${bucket},object=${objectId})}">
+            <a th:href="@{/deleteobj/{bucket}/{object}(bucket=${bucket},object=${objectId})}"
+                onclick="return confirm('Do you really want to delete this object?');">
                 Delete object (all versions)
             </a>
     </article>
