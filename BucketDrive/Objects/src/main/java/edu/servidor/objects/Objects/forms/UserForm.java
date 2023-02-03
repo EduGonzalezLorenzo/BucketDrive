@@ -1,7 +1,6 @@
 package edu.servidor.objects.Objects.forms;
 
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.Range;
 
 public class UserForm {
     @Length(min = 3, max = 10)

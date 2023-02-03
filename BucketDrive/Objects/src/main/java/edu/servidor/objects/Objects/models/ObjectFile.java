@@ -1,7 +1,6 @@
 package edu.servidor.objects.Objects.models;
 
 import java.sql.Timestamp;
-import java.util.Map;
 
 public class ObjectFile {
     private int id;

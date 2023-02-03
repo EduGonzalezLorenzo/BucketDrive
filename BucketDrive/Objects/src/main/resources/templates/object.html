@@ -19,10 +19,10 @@
             <a th:href="@{/objects/{path}(path=${backPath})}"> Go back</a>
         </section>
         <section>
-            <a th:href="@{/deleteobj/{bucket}/{object}(bucket=${bucket},object=${objectId})}"
-                onclick="return confirm('Do you really want to delete this object?');">
-                Delete object (all versions)
-            </a>
+            <form action="#" th:action="@{/deleteobj/{bucket}/{object}(bucket=${bucket},object=${objectId})}"
+                method="post" onsubmit="return confirm('Do you really want to delete this object?');">
+                <input type="submit" value="Delete object (all versions)">
+            </form>
     </article>
     <article class="container">
         <table class="text-center table table-bordered">

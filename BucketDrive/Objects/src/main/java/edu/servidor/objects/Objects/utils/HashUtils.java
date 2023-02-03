@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class GetHash {
+public class HashUtils {
     public static String getHashSHA256(String textToHash) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hash = md.digest(textToHash.getBytes(StandardCharsets.UTF_8));

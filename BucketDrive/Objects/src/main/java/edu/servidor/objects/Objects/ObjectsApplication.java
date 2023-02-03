@@ -21,7 +21,8 @@ public class ObjectsApplication implements WebMvcConfigurer {
                 .addPathPatterns("/settings")
                 .addPathPatterns("/download/**")
                 .addPathPatterns("/deletebucket/**")
-                .addPathPatterns("/object/**");
+                .addPathPatterns("/object/**")
+                .addPathPatterns("/deleteobj/**");
 
         registry.addInterceptor(new NeededToBeUnloggedInterceptor())
                 .addPathPatterns("/index")
