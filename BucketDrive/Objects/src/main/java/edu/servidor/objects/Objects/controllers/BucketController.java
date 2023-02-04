@@ -27,7 +27,7 @@ public class BucketController {
 
     @PostMapping("/objects")
     public String createBucket(@Valid BucketForm bucketForm, BindingResult bindingResult, Model model, HttpSession session) {
-        String message = "";
+        String message;
         User user = (User) session.getAttribute("currentUser");
         if (bindingResult.hasErrors()) {
             message = "Data input error";

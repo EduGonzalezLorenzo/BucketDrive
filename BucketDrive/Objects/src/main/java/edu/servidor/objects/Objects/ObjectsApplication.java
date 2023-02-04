@@ -1,7 +1,7 @@
 package edu.servidor.objects.Objects;
 
 import edu.servidor.objects.Objects.interceptors.NeedToBeLoggedInterceptor;
-import edu.servidor.objects.Objects.interceptors.NeededToBeUnloggedInterceptor;
+import edu.servidor.objects.Objects.interceptors.NeedToBeUnloggedInterceptor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -24,7 +24,7 @@ public class ObjectsApplication implements WebMvcConfigurer {
                 .addPathPatterns("/object/**")
                 .addPathPatterns("/deleteobj/**");
 
-        registry.addInterceptor(new NeededToBeUnloggedInterceptor())
+        registry.addInterceptor(new NeedToBeUnloggedInterceptor())
                 .addPathPatterns("/index")
                 .addPathPatterns("/login")
                 .addPathPatterns("/signup")
